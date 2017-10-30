@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 
@@ -12,6 +13,7 @@ func main() {
 
 	var global struct {
 		InputTile string `short:"i" long:"input-tile"        description:"path to the input tile"                        default:""`
+		OutputDir string `short:"o" long:"output"            description:"path to extract to"                            default:""`
 	}
 
 	_, err := flags.Parse(&global, os.Args[1:])
@@ -22,8 +24,10 @@ func main() {
 	var container = new(injector.ProductionExtractContainer)
 	var extractor = injector.NewExtractor(container)
 
-	err = extractor.ExtractWindowsFSRelease(global.InputTile)
+	destDir, err := extractor.ExtractWindowsFSRelease(global.InputTile, global.OutputDir)
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	fmt.Println(destDir)
 }

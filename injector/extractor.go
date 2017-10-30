@@ -2,9 +2,8 @@ package injector
 
 import (
 	"archive/zip"
-	"fmt"
 	"io"
-	"io/ioutil"
+	"log"
 	"os"
 	"path"
 	"path/filepath"
@@ -12,39 +11,67 @@ import (
 
 type extractor struct {
 	openReader func(string) (*zip.ReadCloser, error)
-	writeFile  func(filename string, data []byte, perm os.FileMode) error
 	tempDir    func(dir string, prefix string) (name string, err error)
 	mkdirAll   func(path string, perm os.FileMode) error
+	openFile   func(name string, flag int, perm os.FileMode) (*os.File, error)
+	copy       func(dst io.Writer, src io.Reader) (written int64, err error)
+	match      func(pattern, name string) (matched bool, err error)
 }
 
 type Extractor interface {
-	ExtractWindowsFSRelease(inputTile string) error
+	ExtractWindowsFSRelease(inputTile string, outputDir string) (string, error)
 }
 
 func NewExtractor(container ExtractContainer) Extractor {
 	return &extractor{
 		openReader: container.OpenReader,
-		writeFile:  container.WriteFile,
 		tempDir:    container.TempDir,
 		mkdirAll:   container.MkdirAll,
+		openFile:   container.OpenFile,
+		copy:       container.Copy,
+		match:      container.Match,
 	}
 }
 
+func (ex *extractor) ExtractWindowsFSRelease(inputTile, outputDir string) (string, error) {
+	r, err := ex.openReader(inputTile)
+
+	if err != nil {
+		return "", err
+	}
+
+	destDir, err := ex.tempDir(outputDir, "windows2016fs")
+	if err != nil {
+		return "", err
+	}
+
+	for _, f := range r.File {
+		fileMatch, err := ex.match(filepath.Join("*", "embed", "windows2016fs-release", "**", "*"), f.Name)
+
+		if err != nil {
+			return "", err
+		}
+
+		if fileMatch && f.Mode().IsRegular() {
+			err = ex.extract(f, destDir)
+
+			if err != nil {
+				return "", err
+			}
+		}
+	}
+
+	return destDir, err
+}
+
 func (ex *extractor) extract(zipFile *zip.File, tempDir string) error {
-	var bytes []byte
 	var err error
 	var reader io.Reader
 
 	reader, err = zipFile.Open()
 
 	if err != nil {
-		panic(err)
-	}
-
-	bytes, err = ioutil.ReadAll(reader)
-
-	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
 	fullFilePath := path.Join(tempDir, zipFile.Name)
@@ -52,41 +79,18 @@ func (ex *extractor) extract(zipFile *zip.File, tempDir string) error {
 	err = ex.mkdirAll(path.Dir(fullFilePath), os.ModePerm)
 
 	if err != nil {
-		panic(err)
+		return err
 	}
 
-	err = ex.writeFile(fullFilePath, bytes, 0644)
-	if err != nil {
-		panic(err)
-	}
-
-	return nil
-}
-
-func (ex *extractor) ExtractWindowsFSRelease(inputTile string) error {
-	r, err := ex.openReader(inputTile)
-
+	fd, err := ex.openFile(fullFilePath, os.O_CREATE, 0644)
 	if err != nil {
 		return err
 	}
 
-	destDir, err := ex.tempDir("/tmp/", "windows2016fs")
+	_, err = ex.copy(fd, reader)
+
 	if err != nil {
-		panic(err)
-	}
-
-	fmt.Printf(destDir)
-
-	for _, f := range r.File {
-		// impossible to fail since pattern is hard-coded
-		fileMatch, _ := filepath.Match("*/embed/windows2016fs-release/**/*", f.Name)
-		if fileMatch && f.Mode().IsRegular() {
-			err = ex.extract(f, destDir)
-
-			if err != nil {
-				return err
-			}
-		}
+		return err
 	}
 
 	return nil

@@ -2,8 +2,10 @@ package acceptance
 
 import (
 	"io/ioutil"
+	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -14,26 +16,38 @@ var _ = Describe("winfs-injector", func() {
 	var (
 		inputTile string
 		err       error
+		outputDir string
 	)
 
 	BeforeEach(func() {
-		inputTile, err = filepath.Abs("./fixtures/some-tile.pivotal")
+		outputDir, err = ioutil.TempDir("", "")
+		Expect(err).NotTo(HaveOccurred())
+
+		inputTile, err = filepath.Abs(filepath.Join(".", "fixtures", "some-tile.pivotal"))
+		Expect(err).NotTo(HaveOccurred())
+	})
+
+	AfterEach(func() {
+		err = os.RemoveAll(outputDir)
 		Expect(err).NotTo(HaveOccurred())
 	})
 
 	It("extracts the embedded windows2016fs-release", func() {
 		command := exec.Command(pathToMain,
 			"--input-tile", inputTile,
+			"--output", outputDir,
 		)
 		session, err := gexec.Start(command, GinkgoWriter, GinkgoWriter)
 		Expect(err).NotTo(HaveOccurred())
 
-		//TODO: make this better
 		Eventually(session).Should(gexec.Exit(0))
-		sessionContents := session.Out.Contents()
-		Expect(string(sessionContents)).To(ContainSubstring("/tmp/"))
+		sessionContents := strings.TrimSpace(string(session.Out.Contents()))
+		Expect(sessionContents).To(ContainSubstring("windows2016fs"))
 
-		_, err = ioutil.ReadDir(string(sessionContents))
+		path := filepath.Join(sessionContents, "some-tile", "embed", "windows2016fs-release", "some-folder", "some-file.txt")
+
+		path = filepath.Join(sessionContents, "some-tile", "embed")
+		_, err = ioutil.ReadDir(path)
 		Expect(err).NotTo(HaveOccurred())
 	})
 })

@@ -3,6 +3,7 @@ package injectorfakes
 
 import (
 	"archive/zip"
+	"io"
 	"os"
 	"sync"
 
@@ -19,23 +20,6 @@ type FakeExtractContainer struct {
 		result1 *zip.ReadCloser
 		result2 error
 	}
-	openReaderReturnsOnCall map[int]struct {
-		result1 *zip.ReadCloser
-		result2 error
-	}
-	WriteFileStub        func(filename string, data []byte, perm os.FileMode) error
-	writeFileMutex       sync.RWMutex
-	writeFileArgsForCall []struct {
-		filename string
-		data     []byte
-		perm     os.FileMode
-	}
-	writeFileReturns struct {
-		result1 error
-	}
-	writeFileReturnsOnCall map[int]struct {
-		result1 error
-	}
 	TempDirStub        func(string, string) (string, error)
 	tempDirMutex       sync.RWMutex
 	tempDirArgsForCall []struct {
@@ -43,10 +27,6 @@ type FakeExtractContainer struct {
 		arg2 string
 	}
 	tempDirReturns struct {
-		result1 string
-		result2 error
-	}
-	tempDirReturnsOnCall map[int]struct {
 		result1 string
 		result2 error
 	}
@@ -59,8 +39,36 @@ type FakeExtractContainer struct {
 	mkdirAllReturns struct {
 		result1 error
 	}
-	mkdirAllReturnsOnCall map[int]struct {
-		result1 error
+	OpenFileStub        func(name string, flag int, perm os.FileMode) (*os.File, error)
+	openFileMutex       sync.RWMutex
+	openFileArgsForCall []struct {
+		name string
+		flag int
+		perm os.FileMode
+	}
+	openFileReturns struct {
+		result1 *os.File
+		result2 error
+	}
+	CopyStub        func(dst io.Writer, src io.Reader) (written int64, err error)
+	copyMutex       sync.RWMutex
+	copyArgsForCall []struct {
+		dst io.Writer
+		src io.Reader
+	}
+	copyReturns struct {
+		result1 int64
+		result2 error
+	}
+	MatchStub        func(pattern, name string) (matched bool, err error)
+	matchMutex       sync.RWMutex
+	matchArgsForCall []struct {
+		pattern string
+		name    string
+	}
+	matchReturns struct {
+		result1 bool
+		result2 error
 	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
@@ -68,7 +76,6 @@ type FakeExtractContainer struct {
 
 func (fake *FakeExtractContainer) OpenReader(arg1 string) (*zip.ReadCloser, error) {
 	fake.openReaderMutex.Lock()
-	ret, specificReturn := fake.openReaderReturnsOnCall[len(fake.openReaderArgsForCall)]
 	fake.openReaderArgsForCall = append(fake.openReaderArgsForCall, struct {
 		arg1 string
 	}{arg1})
@@ -76,11 +83,9 @@ func (fake *FakeExtractContainer) OpenReader(arg1 string) (*zip.ReadCloser, erro
 	fake.openReaderMutex.Unlock()
 	if fake.OpenReaderStub != nil {
 		return fake.OpenReaderStub(arg1)
+	} else {
+		return fake.openReaderReturns.result1, fake.openReaderReturns.result2
 	}
-	if specificReturn {
-		return ret.result1, ret.result2
-	}
-	return fake.openReaderReturns.result1, fake.openReaderReturns.result2
 }
 
 func (fake *FakeExtractContainer) OpenReaderCallCount() int {
@@ -103,78 +108,8 @@ func (fake *FakeExtractContainer) OpenReaderReturns(result1 *zip.ReadCloser, res
 	}{result1, result2}
 }
 
-func (fake *FakeExtractContainer) OpenReaderReturnsOnCall(i int, result1 *zip.ReadCloser, result2 error) {
-	fake.OpenReaderStub = nil
-	if fake.openReaderReturnsOnCall == nil {
-		fake.openReaderReturnsOnCall = make(map[int]struct {
-			result1 *zip.ReadCloser
-			result2 error
-		})
-	}
-	fake.openReaderReturnsOnCall[i] = struct {
-		result1 *zip.ReadCloser
-		result2 error
-	}{result1, result2}
-}
-
-func (fake *FakeExtractContainer) WriteFile(filename string, data []byte, perm os.FileMode) error {
-	var dataCopy []byte
-	if data != nil {
-		dataCopy = make([]byte, len(data))
-		copy(dataCopy, data)
-	}
-	fake.writeFileMutex.Lock()
-	ret, specificReturn := fake.writeFileReturnsOnCall[len(fake.writeFileArgsForCall)]
-	fake.writeFileArgsForCall = append(fake.writeFileArgsForCall, struct {
-		filename string
-		data     []byte
-		perm     os.FileMode
-	}{filename, dataCopy, perm})
-	fake.recordInvocation("WriteFile", []interface{}{filename, dataCopy, perm})
-	fake.writeFileMutex.Unlock()
-	if fake.WriteFileStub != nil {
-		return fake.WriteFileStub(filename, data, perm)
-	}
-	if specificReturn {
-		return ret.result1
-	}
-	return fake.writeFileReturns.result1
-}
-
-func (fake *FakeExtractContainer) WriteFileCallCount() int {
-	fake.writeFileMutex.RLock()
-	defer fake.writeFileMutex.RUnlock()
-	return len(fake.writeFileArgsForCall)
-}
-
-func (fake *FakeExtractContainer) WriteFileArgsForCall(i int) (string, []byte, os.FileMode) {
-	fake.writeFileMutex.RLock()
-	defer fake.writeFileMutex.RUnlock()
-	return fake.writeFileArgsForCall[i].filename, fake.writeFileArgsForCall[i].data, fake.writeFileArgsForCall[i].perm
-}
-
-func (fake *FakeExtractContainer) WriteFileReturns(result1 error) {
-	fake.WriteFileStub = nil
-	fake.writeFileReturns = struct {
-		result1 error
-	}{result1}
-}
-
-func (fake *FakeExtractContainer) WriteFileReturnsOnCall(i int, result1 error) {
-	fake.WriteFileStub = nil
-	if fake.writeFileReturnsOnCall == nil {
-		fake.writeFileReturnsOnCall = make(map[int]struct {
-			result1 error
-		})
-	}
-	fake.writeFileReturnsOnCall[i] = struct {
-		result1 error
-	}{result1}
-}
-
 func (fake *FakeExtractContainer) TempDir(arg1 string, arg2 string) (string, error) {
 	fake.tempDirMutex.Lock()
-	ret, specificReturn := fake.tempDirReturnsOnCall[len(fake.tempDirArgsForCall)]
 	fake.tempDirArgsForCall = append(fake.tempDirArgsForCall, struct {
 		arg1 string
 		arg2 string
@@ -183,11 +118,9 @@ func (fake *FakeExtractContainer) TempDir(arg1 string, arg2 string) (string, err
 	fake.tempDirMutex.Unlock()
 	if fake.TempDirStub != nil {
 		return fake.TempDirStub(arg1, arg2)
+	} else {
+		return fake.tempDirReturns.result1, fake.tempDirReturns.result2
 	}
-	if specificReturn {
-		return ret.result1, ret.result2
-	}
-	return fake.tempDirReturns.result1, fake.tempDirReturns.result2
 }
 
 func (fake *FakeExtractContainer) TempDirCallCount() int {
@@ -210,23 +143,8 @@ func (fake *FakeExtractContainer) TempDirReturns(result1 string, result2 error) 
 	}{result1, result2}
 }
 
-func (fake *FakeExtractContainer) TempDirReturnsOnCall(i int, result1 string, result2 error) {
-	fake.TempDirStub = nil
-	if fake.tempDirReturnsOnCall == nil {
-		fake.tempDirReturnsOnCall = make(map[int]struct {
-			result1 string
-			result2 error
-		})
-	}
-	fake.tempDirReturnsOnCall[i] = struct {
-		result1 string
-		result2 error
-	}{result1, result2}
-}
-
 func (fake *FakeExtractContainer) MkdirAll(path string, perm os.FileMode) error {
 	fake.mkdirAllMutex.Lock()
-	ret, specificReturn := fake.mkdirAllReturnsOnCall[len(fake.mkdirAllArgsForCall)]
 	fake.mkdirAllArgsForCall = append(fake.mkdirAllArgsForCall, struct {
 		path string
 		perm os.FileMode
@@ -235,11 +153,9 @@ func (fake *FakeExtractContainer) MkdirAll(path string, perm os.FileMode) error 
 	fake.mkdirAllMutex.Unlock()
 	if fake.MkdirAllStub != nil {
 		return fake.MkdirAllStub(path, perm)
+	} else {
+		return fake.mkdirAllReturns.result1
 	}
-	if specificReturn {
-		return ret.result1
-	}
-	return fake.mkdirAllReturns.result1
 }
 
 func (fake *FakeExtractContainer) MkdirAllCallCount() int {
@@ -261,16 +177,110 @@ func (fake *FakeExtractContainer) MkdirAllReturns(result1 error) {
 	}{result1}
 }
 
-func (fake *FakeExtractContainer) MkdirAllReturnsOnCall(i int, result1 error) {
-	fake.MkdirAllStub = nil
-	if fake.mkdirAllReturnsOnCall == nil {
-		fake.mkdirAllReturnsOnCall = make(map[int]struct {
-			result1 error
-		})
+func (fake *FakeExtractContainer) OpenFile(name string, flag int, perm os.FileMode) (*os.File, error) {
+	fake.openFileMutex.Lock()
+	fake.openFileArgsForCall = append(fake.openFileArgsForCall, struct {
+		name string
+		flag int
+		perm os.FileMode
+	}{name, flag, perm})
+	fake.recordInvocation("OpenFile", []interface{}{name, flag, perm})
+	fake.openFileMutex.Unlock()
+	if fake.OpenFileStub != nil {
+		return fake.OpenFileStub(name, flag, perm)
+	} else {
+		return fake.openFileReturns.result1, fake.openFileReturns.result2
 	}
-	fake.mkdirAllReturnsOnCall[i] = struct {
-		result1 error
-	}{result1}
+}
+
+func (fake *FakeExtractContainer) OpenFileCallCount() int {
+	fake.openFileMutex.RLock()
+	defer fake.openFileMutex.RUnlock()
+	return len(fake.openFileArgsForCall)
+}
+
+func (fake *FakeExtractContainer) OpenFileArgsForCall(i int) (string, int, os.FileMode) {
+	fake.openFileMutex.RLock()
+	defer fake.openFileMutex.RUnlock()
+	return fake.openFileArgsForCall[i].name, fake.openFileArgsForCall[i].flag, fake.openFileArgsForCall[i].perm
+}
+
+func (fake *FakeExtractContainer) OpenFileReturns(result1 *os.File, result2 error) {
+	fake.OpenFileStub = nil
+	fake.openFileReturns = struct {
+		result1 *os.File
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeExtractContainer) Copy(dst io.Writer, src io.Reader) (written int64, err error) {
+	fake.copyMutex.Lock()
+	fake.copyArgsForCall = append(fake.copyArgsForCall, struct {
+		dst io.Writer
+		src io.Reader
+	}{dst, src})
+	fake.recordInvocation("Copy", []interface{}{dst, src})
+	fake.copyMutex.Unlock()
+	if fake.CopyStub != nil {
+		return fake.CopyStub(dst, src)
+	} else {
+		return fake.copyReturns.result1, fake.copyReturns.result2
+	}
+}
+
+func (fake *FakeExtractContainer) CopyCallCount() int {
+	fake.copyMutex.RLock()
+	defer fake.copyMutex.RUnlock()
+	return len(fake.copyArgsForCall)
+}
+
+func (fake *FakeExtractContainer) CopyArgsForCall(i int) (io.Writer, io.Reader) {
+	fake.copyMutex.RLock()
+	defer fake.copyMutex.RUnlock()
+	return fake.copyArgsForCall[i].dst, fake.copyArgsForCall[i].src
+}
+
+func (fake *FakeExtractContainer) CopyReturns(result1 int64, result2 error) {
+	fake.CopyStub = nil
+	fake.copyReturns = struct {
+		result1 int64
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeExtractContainer) Match(pattern string, name string) (matched bool, err error) {
+	fake.matchMutex.Lock()
+	fake.matchArgsForCall = append(fake.matchArgsForCall, struct {
+		pattern string
+		name    string
+	}{pattern, name})
+	fake.recordInvocation("Match", []interface{}{pattern, name})
+	fake.matchMutex.Unlock()
+	if fake.MatchStub != nil {
+		return fake.MatchStub(pattern, name)
+	} else {
+		return fake.matchReturns.result1, fake.matchReturns.result2
+	}
+}
+
+func (fake *FakeExtractContainer) MatchCallCount() int {
+	fake.matchMutex.RLock()
+	defer fake.matchMutex.RUnlock()
+	return len(fake.matchArgsForCall)
+}
+
+func (fake *FakeExtractContainer) MatchArgsForCall(i int) (string, string) {
+	fake.matchMutex.RLock()
+	defer fake.matchMutex.RUnlock()
+	return fake.matchArgsForCall[i].pattern, fake.matchArgsForCall[i].name
+}
+
+func (fake *FakeExtractContainer) MatchReturns(result1 bool, result2 error) {
+	fake.MatchStub = nil
+	fake.matchReturns = struct {
+		result1 bool
+		result2 error
+	}{result1, result2}
 }
 
 func (fake *FakeExtractContainer) Invocations() map[string][][]interface{} {
@@ -278,12 +288,16 @@ func (fake *FakeExtractContainer) Invocations() map[string][][]interface{} {
 	defer fake.invocationsMutex.RUnlock()
 	fake.openReaderMutex.RLock()
 	defer fake.openReaderMutex.RUnlock()
-	fake.writeFileMutex.RLock()
-	defer fake.writeFileMutex.RUnlock()
 	fake.tempDirMutex.RLock()
 	defer fake.tempDirMutex.RUnlock()
 	fake.mkdirAllMutex.RLock()
 	defer fake.mkdirAllMutex.RUnlock()
+	fake.openFileMutex.RLock()
+	defer fake.openFileMutex.RUnlock()
+	fake.copyMutex.RLock()
+	defer fake.copyMutex.RUnlock()
+	fake.matchMutex.RLock()
+	defer fake.matchMutex.RUnlock()
 	return fake.invocations
 }
 
