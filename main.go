@@ -30,4 +30,14 @@ func main() {
 	}
 
 	fmt.Println(destDir)
+
+	// pathToScript := filepath.Join(destDir, "some-tile", "embed", "windows2016fs-release", "scripts", "create-release")
+	// fmt.Println(pathToScript)
+	// command := exec.Command(pathToScript)
+	// err = command.Run()
+	// if err != nil {
+	// 	panic(err)
+	// }
+
+	// execute ./destDir/scripts/create-release
 }

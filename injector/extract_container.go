@@ -5,7 +5,7 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
-	"path/filepath"
+	"regexp"
 )
 
 type ExtractContainer interface {
@@ -40,5 +40,5 @@ func (p *ProductionExtractContainer) Copy(dst io.Writer, src io.Reader) (written
 }
 
 func (p *ProductionExtractContainer) Match(pattern, name string) (matched bool, err error) {
-	return filepath.Match(pattern, name)
+	return regexp.MatchString(pattern, name)
 }

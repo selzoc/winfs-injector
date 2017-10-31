@@ -8,6 +8,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"regexp"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -30,7 +31,7 @@ var _ = Describe("injector", func() {
 			fakeExtractContainer = new(injectorfakes.FakeExtractContainer)
 			extractor = injector.NewExtractor(fakeExtractContainer)
 
-			fakeExtractContainer.MatchStub = filepath.Match
+			fakeExtractContainer.MatchStub = regexp.MatchString
 
 			var buffer = new(bytes.Buffer)
 			var writer = zip.NewWriter(buffer)

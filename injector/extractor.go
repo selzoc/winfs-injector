@@ -46,7 +46,7 @@ func (ex *extractor) ExtractWindowsFSRelease(inputTile, outputDir string) (strin
 	}
 
 	for _, f := range r.File {
-		fileMatch, err := ex.match(filepath.Join("*", "embed", "windows2016fs-release", "**", "*"), f.Name)
+		fileMatch, err := ex.match(filepath.Join("embed", "windows2016fs-release"), f.Name)
 
 		if err != nil {
 			return "", err
@@ -82,7 +82,7 @@ func (ex *extractor) extract(zipFile *zip.File, tempDir string) error {
 		return err
 	}
 
-	fd, err := ex.openFile(fullFilePath, os.O_CREATE, 0644)
+	fd, err := ex.openFile(fullFilePath, os.O_CREATE|os.O_WRONLY, zipFile.FileHeader.Mode())
 	if err != nil {
 		return err
 	}
