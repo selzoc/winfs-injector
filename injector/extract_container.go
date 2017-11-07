@@ -8,6 +8,7 @@ import (
 	"regexp"
 )
 
+//go:generate counterfeiter -o ./fakes/extract_container.go --fake-name ExtractContainer . ExtractContainer
 type ExtractContainer interface {
 	OpenReader(string) (*zip.ReadCloser, error)
 	TempDir(string, string) (string, error)

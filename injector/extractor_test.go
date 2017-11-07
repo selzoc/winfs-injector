@@ -24,12 +24,12 @@ var createFile = func(writer *zip.Writer, name string, contents string) {
 
 var _ = Describe("injector", func() {
 	Describe("ExtractWindowsFSRelease", func() {
-		var fakeExtractContainer *fakes.FakeExtractContainer
+		var fakeExtractContainer *fakes.ExtractContainer
 		var extractor injector.Extractor
 		var openFileFakeReturns *os.File
 
 		BeforeEach(func() {
-			fakeExtractContainer = new(fakes.FakeExtractContainer)
+			fakeExtractContainer = new(fakes.ExtractContainer)
 			extractor = injector.NewExtractor(fakeExtractContainer)
 
 			fakeExtractContainer.MatchStub = regexp.MatchString
