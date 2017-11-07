@@ -10,10 +10,11 @@ import (
 	"path/filepath"
 	"regexp"
 
+	"github.com/pivotal-cf/winfs-injector/injector"
+	"github.com/pivotal-cf/winfs-injector/injector/fakes"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"github.com/pivotal-cf/winfs-injector/injector"
-	"github.com/pivotal-cf/winfs-injector/injector/injectorfakes"
 )
 
 var createFile = func(writer *zip.Writer, name string, contents string) {
@@ -23,12 +24,12 @@ var createFile = func(writer *zip.Writer, name string, contents string) {
 
 var _ = Describe("injector", func() {
 	Describe("ExtractWindowsFSRelease", func() {
-		var fakeExtractContainer *injectorfakes.FakeExtractContainer
+		var fakeExtractContainer *fakes.FakeExtractContainer
 		var extractor injector.Extractor
 		var openFileFakeReturns *os.File
 
 		BeforeEach(func() {
-			fakeExtractContainer = new(injectorfakes.FakeExtractContainer)
+			fakeExtractContainer = new(fakes.FakeExtractContainer)
 			extractor = injector.NewExtractor(fakeExtractContainer)
 
 			fakeExtractContainer.MatchStub = regexp.MatchString
