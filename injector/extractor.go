@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 )
 
-type extractor struct {
+type Extractor struct {
 	openReader func(string) (*zip.ReadCloser, error)
 	tempDir    func(dir string, prefix string) (name string, err error)
 	mkdirAll   func(path string, perm os.FileMode) error
@@ -18,12 +18,8 @@ type extractor struct {
 	match      func(pattern, name string) (matched bool, err error)
 }
 
-type Extractor interface {
-	ExtractWindowsFSRelease(inputTile string, outputDir string) (string, error)
-}
-
 func NewExtractor(container ExtractContainer) Extractor {
-	return &extractor{
+	return Extractor{
 		openReader: container.OpenReader,
 		tempDir:    container.TempDir,
 		mkdirAll:   container.MkdirAll,
@@ -33,7 +29,7 @@ func NewExtractor(container ExtractContainer) Extractor {
 	}
 }
 
-func (ex *extractor) ExtractWindowsFSRelease(inputTile, outputDir string) (string, error) {
+func (ex Extractor) ExtractWindowsFSRelease(inputTile, outputDir string) (string, error) {
 	r, err := ex.openReader(inputTile)
 
 	if err != nil {
@@ -64,7 +60,7 @@ func (ex *extractor) ExtractWindowsFSRelease(inputTile, outputDir string) (strin
 	return destDir, err
 }
 
-func (ex *extractor) extract(zipFile *zip.File, tempDir string) error {
+func (ex Extractor) extract(zipFile *zip.File, tempDir string) error {
 	var err error
 	var reader io.Reader
 
