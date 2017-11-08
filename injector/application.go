@@ -3,7 +3,6 @@ package injector
 import (
 	"fmt"
 	"io/ioutil"
-	"path"
 	"path/filepath"
 	"strings"
 )
@@ -38,10 +37,7 @@ func (a Application) Run(inputTile, workingDir string) error {
 
 	imageName := "cloudfoundry/windows2016fs"
 
-	tileName := path.Base(inputTile)
-	tileName = strings.Replace(tileName, path.Ext(tileName), "", 1)
-
-	releaseDir := filepath.Join(destDir, tileName, "embed", "windows2016fs-release")
+	releaseDir := filepath.Join(destDir, "embed", "windows2016fs-release")
 
 	imageTagPath := filepath.Join(releaseDir, "src", "code.cloudfoundry.org", "windows2016fs", "IMAGE_TAG")
 	content, err := ioutil.ReadFile(imageTagPath)

@@ -43,11 +43,11 @@ var _ = Describe("application", func() {
 			Expect(fakeReleaseCreator.CreateReleaseCallCount()).To(Equal(1))
 			imageName, releaseDir, tarballPath, imageTagPath, versionDataPath, winfsBlobsDir := fakeReleaseCreator.CreateReleaseArgsForCall(0)
 			Expect(imageName).To(Equal("cloudfoundry/windows2016fs"))
-			Expect(releaseDir).To(Equal("fixtures/tile/embed/windows2016fs-release"))
+			Expect(releaseDir).To(Equal("fixtures/embed/windows2016fs-release"))
 			Expect(tarballPath).To(Equal("/path/to/working/dir/windows2016fs-some-version.tgz"))
-			Expect(imageTagPath).To(Equal("fixtures/tile/embed/windows2016fs-release/src/code.cloudfoundry.org/windows2016fs/IMAGE_TAG"))
-			Expect(versionDataPath).To(Equal("fixtures/tile/embed/windows2016fs-release/VERSION"))
-			Expect(winfsBlobsDir).To(Equal("fixtures/tile/embed/windows2016fs-release/blobs/windows2016fs"))
+			Expect(imageTagPath).To(Equal("fixtures/embed/windows2016fs-release/src/code.cloudfoundry.org/windows2016fs/IMAGE_TAG"))
+			Expect(versionDataPath).To(Equal("fixtures/embed/windows2016fs-release/VERSION"))
+			Expect(winfsBlobsDir).To(Equal("fixtures/embed/windows2016fs-release/blobs/windows2016fs"))
 		})
 
 		Context("Failure cases", func() {
