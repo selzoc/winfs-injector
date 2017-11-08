@@ -6,8 +6,6 @@ import (
 	"io"
 	"os"
 	"sync"
-
-	"github.com/pivotal-cf/winfs-injector/injector"
 )
 
 type ExtractContainer struct {
@@ -65,7 +63,7 @@ type ExtractContainer struct {
 		result1 *os.File
 		result2 error
 	}
-	CopyStub        func(dst io.Writer, src io.Reader) (written int64, err error)
+	CopyStub        func(dst io.Writer, src io.Reader) (int64, error)
 	copyMutex       sync.RWMutex
 	copyArgsForCall []struct {
 		dst io.Writer
@@ -79,7 +77,7 @@ type ExtractContainer struct {
 		result1 int64
 		result2 error
 	}
-	MatchStub        func(pattern, name string) (matched bool, err error)
+	MatchStub        func(pattern, name string) (bool, error)
 	matchMutex       sync.RWMutex
 	matchArgsForCall []struct {
 		pattern string
@@ -302,7 +300,7 @@ func (fake *ExtractContainer) OpenFileReturnsOnCall(i int, result1 *os.File, res
 	}{result1, result2}
 }
 
-func (fake *ExtractContainer) Copy(dst io.Writer, src io.Reader) (written int64, err error) {
+func (fake *ExtractContainer) Copy(dst io.Writer, src io.Reader) (int64, error) {
 	fake.copyMutex.Lock()
 	ret, specificReturn := fake.copyReturnsOnCall[len(fake.copyArgsForCall)]
 	fake.copyArgsForCall = append(fake.copyArgsForCall, struct {
@@ -354,7 +352,7 @@ func (fake *ExtractContainer) CopyReturnsOnCall(i int, result1 int64, result2 er
 	}{result1, result2}
 }
 
-func (fake *ExtractContainer) Match(pattern string, name string) (matched bool, err error) {
+func (fake *ExtractContainer) Match(pattern string, name string) (bool, error) {
 	fake.matchMutex.Lock()
 	ret, specificReturn := fake.matchReturnsOnCall[len(fake.matchArgsForCall)]
 	fake.matchArgsForCall = append(fake.matchArgsForCall, struct {
@@ -439,5 +437,3 @@ func (fake *ExtractContainer) recordInvocation(key string, args []interface{}) {
 	}
 	fake.invocations[key] = append(fake.invocations[key], args)
 }
-
-var _ injector.ExtractContainer = new(ExtractContainer)

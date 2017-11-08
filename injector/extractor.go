@@ -10,39 +10,39 @@ import (
 )
 
 type Extractor struct {
-	openReader func(string) (*zip.ReadCloser, error)
-	tempDir    func(dir string, prefix string) (name string, err error)
-	mkdirAll   func(path string, perm os.FileMode) error
-	openFile   func(name string, flag int, perm os.FileMode) (*os.File, error)
-	copy       func(dst io.Writer, src io.Reader) (written int64, err error)
-	match      func(pattern, name string) (matched bool, err error)
+	container extractContainer
 }
 
-func NewExtractor(container ExtractContainer) Extractor {
+//go:generate counterfeiter -o ./fakes/extract_container.go --fake-name ExtractContainer . extractContainer
+type extractContainer interface {
+	OpenReader(string) (*zip.ReadCloser, error)
+	TempDir(string, string) (string, error)
+	MkdirAll(path string, perm os.FileMode) error
+	OpenFile(name string, flag int, perm os.FileMode) (*os.File, error)
+	Copy(dst io.Writer, src io.Reader) (int64, error)
+	Match(pattern, name string) (bool, error)
+}
+
+func NewExtractor(container extractContainer) Extractor {
 	return Extractor{
-		openReader: container.OpenReader,
-		tempDir:    container.TempDir,
-		mkdirAll:   container.MkdirAll,
-		openFile:   container.OpenFile,
-		copy:       container.Copy,
-		match:      container.Match,
+		container: container,
 	}
 }
 
 func (ex Extractor) ExtractWindowsFSRelease(inputTile, outputDir string) (string, error) {
-	r, err := ex.openReader(inputTile)
+	r, err := ex.container.OpenReader(inputTile)
 
 	if err != nil {
 		return "", err
 	}
 
-	destDir, err := ex.tempDir(outputDir, "windows2016fs")
+	destDir, err := ex.container.TempDir(outputDir, "windows2016fs")
 	if err != nil {
 		return "", err
 	}
 
 	for _, f := range r.File {
-		fileMatch, err := ex.match(filepath.Join("embed", "windows2016fs-release"), f.Name)
+		fileMatch, err := ex.container.Match(filepath.Join("embed", "windows2016fs-release"), f.Name)
 
 		if err != nil {
 			return "", err
@@ -72,18 +72,18 @@ func (ex Extractor) extract(zipFile *zip.File, tempDir string) error {
 
 	fullFilePath := path.Join(tempDir, zipFile.Name)
 
-	err = ex.mkdirAll(path.Dir(fullFilePath), os.ModePerm)
+	err = ex.container.MkdirAll(path.Dir(fullFilePath), os.ModePerm)
 
 	if err != nil {
 		return err
 	}
 
-	fd, err := ex.openFile(fullFilePath, os.O_CREATE|os.O_WRONLY, zipFile.FileHeader.Mode())
+	fd, err := ex.container.OpenFile(fullFilePath, os.O_CREATE|os.O_WRONLY, zipFile.FileHeader.Mode())
 	if err != nil {
 		return err
 	}
 
-	_, err = ex.copy(fd, reader)
+	_, err = ex.container.Copy(fd, reader)
 
 	if err != nil {
 		return err

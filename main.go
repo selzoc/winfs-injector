@@ -20,7 +20,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	var container = new(injector.ProductionExtractContainer)
+	var container = injector.NewExtractContainer()
 	var extractor = injector.NewExtractor(container)
 	var releaseCreator = createRelease.ReleaseCreator{}
 
