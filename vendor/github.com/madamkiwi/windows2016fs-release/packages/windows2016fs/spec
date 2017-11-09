@@ -1,7 +1,0 @@
----
-name: windows2016fs
-
-dependencies: []
-
-files:
-  - windows2016fs/windows2016fs-*.tgz

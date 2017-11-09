@@ -32,7 +32,3 @@
 [[constraint]]
   branch = "master"
   name = "github.com/pivotal-cf/jhanda"
-
-[[constraint]]
-  branch = "develop"
-  name = "github.com/madamkiwi/windows2016fs-release"

@@ -2,191 +2,6 @@
 
 
 [[projects]]
-  name = "cloud.google.com/go"
-  packages = ["compute/metadata","iam","internal","internal/optional","internal/version","storage"]
-  revision = "2d3a6656c17a60b0815b7e06ab0be04eacb6e613"
-  version = "v0.16.0"
-
-[[projects]]
-  branch = "master"
-  name = "code.cloudfoundry.org/clock"
-  packages = ["."]
-  revision = "2269160ae1757f96bbb8c6475e6fa36c805e73e0"
-
-[[projects]]
-  branch = "master"
-  name = "code.cloudfoundry.org/windows2016fs"
-  packages = ["compress","downloader","hydrator","registry"]
-  revision = "f8d704f9329e4bbfbbabaa3a927517c91f935d7a"
-
-[[projects]]
-  branch = "master"
-  name = "github.com/armon/go-socks5"
-  packages = ["."]
-  revision = "e75332964ef517daa070d7c38a9466a0d687e0a5"
-
-[[projects]]
-  name = "github.com/aws/aws-sdk-go"
-  packages = ["aws","aws/awserr","aws/awsutil","aws/client","aws/client/metadata","aws/corehandlers","aws/credentials","aws/credentials/ec2rolecreds","aws/credentials/endpointcreds","aws/credentials/stscreds","aws/defaults","aws/ec2metadata","aws/endpoints","aws/request","aws/session","aws/signer/v4","internal/shareddefaults","private/protocol","private/protocol/query","private/protocol/query/queryutil","private/protocol/rest","private/protocol/restxml","private/protocol/xml/xmlutil","service/s3","service/s3/s3iface","service/s3/s3manager","service/sts"]
-  revision = "6061953e33da7e141a16c70ec9535467ce7f189a"
-  version = "v1.12.24"
-
-[[projects]]
-  name = "github.com/bmatcuk/doublestar"
-  packages = ["."]
-  revision = "b3608229437ba4dc33dae64d56a79a2a73f1f6b2"
-  version = "v1.0.9"
-
-[[projects]]
-  branch = "master"
-  name = "github.com/charlievieth/fs"
-  packages = ["."]
-  revision = "7dc373669fa10ddf827c37c595dee30a2f001be9"
-
-[[projects]]
-  name = "github.com/cheggaaa/pb"
-  packages = ["."]
-  revision = "fec330ed6ef74d0a026da2c639821ee0d9f97687"
-  version = "v2.0.5"
-
-[[projects]]
-  name = "github.com/cloudfoundry/bosh-agent"
-  packages = ["agentclient","agentclient/applyspec","agentclient/http"]
-  revision = "a74fc7069b604abe84f1ddd899f58ae1e6b1f8ee"
-
-[[projects]]
-  name = "github.com/cloudfoundry/bosh-cli"
-  packages = ["blobstore","cloud","cmd","cmd/config","common/net","common/util","config","cpi/release","crypto","deployment","deployment/disk","deployment/instance","deployment/instance/state","deployment/manifest","deployment/release","deployment/sshtunnel","deployment/template","deployment/vm","director","director/template","index","installation","installation/blobextract","installation/manifest","installation/pkg","installation/tarball","registry","release","release/job","release/job/manifest","release/license","release/manifest","release/pkg","release/pkg/manifest","release/resource","release/set/manifest","releasedir","releasedir/index","ssh","state/job","state/pkg","stemcell","templatescompiler","templatescompiler/erbrenderer","uaa","ui","ui/fmt","ui/table","ui/task","work"]
-  revision = "d20879988632b019eb3f195cced2afb2b3eedabb"
-  version = "v2.0.45"
-
-[[projects]]
-  name = "github.com/cloudfoundry/bosh-davcli"
-  packages = ["client","config"]
-  revision = "81142822dc5f81b6c2af2e2f512be802f3d6f69c"
-  version = "v0.0.26"
-
-[[projects]]
-  name = "github.com/cloudfoundry/bosh-gcscli"
-  packages = ["client","config"]
-  revision = "20aff213fc28a609c3da1cbdb29bd8906e0e90fa"
-  version = "v0.0.5"
-
-[[projects]]
-  name = "github.com/cloudfoundry/bosh-s3cli"
-  packages = ["config"]
-  revision = "3a73869d3a33078403c896bbe32061dffc87c864"
-  version = "v0.0.64"
-
-[[projects]]
-  branch = "master"
-  name = "github.com/cloudfoundry/bosh-utils"
-  packages = ["blobstore","crypto","errors","fileutil","httpclient","logger","property","retrystrategy","system","uuid"]
-  revision = "0afc605932f7965f0d308e3833a2779ec9cafc6b"
-
-[[projects]]
-  name = "github.com/cloudfoundry/config-server"
-  packages = ["types"]
-  revision = "d29aa99b7c301778efea4714252b6ef549089d6b"
-  version = "v0.0.124"
-
-[[projects]]
-  branch = "master"
-  name = "github.com/cloudfoundry/socks5-proxy"
-  packages = ["."]
-  revision = "85b64ab377f2687275ba05f71ab3221067f138e7"
-
-[[projects]]
-  branch = "master"
-  name = "github.com/cppforlife/go-patch"
-  packages = ["patch"]
-  revision = "250da0e0e68ce3367b4302f34218f6c064eb9559"
-
-[[projects]]
-  branch = "master"
-  name = "github.com/cppforlife/go-semi-semantic"
-  packages = ["version"]
-  revision = "576b6af77ae4f3ccef356902fb3b9a9ae22e0b11"
-
-[[projects]]
-  branch = "master"
-  name = "github.com/dustin/go-humanize"
-  packages = ["."]
-  revision = "6d15c0ae71e55ed645c21ac4945aaadbc0e9a590"
-
-[[projects]]
-  name = "github.com/fatih/color"
-  packages = ["."]
-  revision = "570b54cabe6b8eb0bc2dfce68d964677d63b5260"
-  version = "v1.5.0"
-
-[[projects]]
-  name = "github.com/go-ini/ini"
-  packages = ["."]
-  revision = "f280b3ba517bf5fc98922624f21fb0e7a92adaec"
-  version = "v1.30.3"
-
-[[projects]]
-  branch = "master"
-  name = "github.com/golang/protobuf"
-  packages = ["proto","protoc-gen-go/descriptor","ptypes","ptypes/any","ptypes/duration","ptypes/timestamp"]
-  revision = "1643683e1b54a9e88ad26d98f81400c8c9d9f4f9"
-
-[[projects]]
-  name = "github.com/googleapis/gax-go"
-  packages = ["."]
-  revision = "317e0006254c44a0ac427cc52a0e083ff0b9622f"
-  version = "v2.0.0"
-
-[[projects]]
-  branch = "master"
-  name = "github.com/hashicorp/errwrap"
-  packages = ["."]
-  revision = "7554cd9344cec97297fa6649b055a8c98c2a1e55"
-
-[[projects]]
-  branch = "master"
-  name = "github.com/hashicorp/go-multierror"
-  packages = ["."]
-  revision = "83588e72410abfbe4df460eeb6f30841ae47d4c4"
-
-[[projects]]
-  branch = "cli-patches"
-  name = "github.com/jessevdk/go-flags"
-  packages = ["."]
-  revision = "351f5f310b26e7f1a0602887c0a0432ddda2947d"
-  source = "github.com/cppforlife/go-flags"
-
-[[projects]]
-  name = "github.com/jmespath/go-jmespath"
-  packages = ["."]
-  revision = "0b12d6b5"
-
-[[projects]]
-  branch = "develop"
-  name = "github.com/madamkiwi/windows2016fs-release"
-  packages = ["src/create/createRelease"]
-  revision = "c67c4efffd8065c0fa0b71655ca1bfe02b37e4c8"
-
-[[projects]]
-  name = "github.com/mattn/go-colorable"
-  packages = ["."]
-  revision = "167de6bfdfba052fa6b2d3664c8f5272e23c9072"
-  version = "v0.0.9"
-
-[[projects]]
-  name = "github.com/mattn/go-isatty"
-  packages = ["."]
-  revision = "0360b2af4f38e8d38c7fce2a9f4e702702d73a39"
-  version = "v0.0.3"
-
-[[projects]]
-  branch = "master"
-  name = "github.com/nu7hatch/gouuid"
-  packages = ["."]
-  revision = "179d4d0c4d8d407a32af483c2354df1d2c91e6c3"
-
-[[projects]]
   name = "github.com/onsi/ginkgo"
   packages = [".","config","internal/codelocation","internal/containernode","internal/failer","internal/leafnodes","internal/remote","internal/spec","internal/spec_iterator","internal/specrunner","internal/suite","internal/testingtproxy","internal/writer","reporters","reporters/stenographer","reporters/stenographer/support/go-colorable","reporters/stenographer/support/go-isatty","types"]
   revision = "9eda700730cba42af70d53180f9dcce9266bc2bc"
@@ -194,21 +9,9 @@
 
 [[projects]]
   name = "github.com/onsi/gomega"
-  packages = [".","format","internal/assertion","internal/asyncassertion","internal/oraclematcher","internal/testingtsupport","matchers","matchers/support/goraph/bipartitegraph","matchers/support/goraph/edge","matchers/support/goraph/node","matchers/support/goraph/util","types"]
+  packages = [".","format","gbytes","gexec","internal/assertion","internal/asyncassertion","internal/oraclematcher","internal/testingtsupport","matchers","matchers/support/goraph/bipartitegraph","matchers/support/goraph/edge","matchers/support/goraph/node","matchers/support/goraph/util","types"]
   revision = "c893efa28eb45626cdaa76c9f653b62488858837"
   version = "v1.2.0"
-
-[[projects]]
-  name = "github.com/opencontainers/go-digest"
-  packages = ["."]
-  revision = "279bed98673dd5bef374d3b6e4b09e2af76183bf"
-  version = "v1.0.0-rc1"
-
-[[projects]]
-  name = "github.com/opencontainers/image-spec"
-  packages = ["specs-go","specs-go/v1"]
-  revision = "d60099175f88c47cd379c4738d158884749ed235"
-  version = "v1.0.1"
 
 [[projects]]
   branch = "master"
@@ -218,117 +21,21 @@
 
 [[projects]]
   branch = "master"
-  name = "github.com/pivotal-cf/paraphernalia"
-  packages = ["secure/tlsconfig"]
-  revision = "4272315231ce0d2636eeb44ed0479e56ca165581"
-
-[[projects]]
-  name = "github.com/pivotal-golang/s3cli"
-  packages = ["client","config"]
-  revision = "3a73869d3a33078403c896bbe32061dffc87c864"
-  version = "v0.0.64"
-
-[[projects]]
-  branch = "v2"
-  name = "github.com/pivotal-golang/yaml"
-  packages = ["."]
-  revision = "8b09e4a33107d942293b5ef6f32254124ccaf8a8"
-
-[[projects]]
-  branch = "master"
-  name = "github.com/vito/go-interact"
-  packages = ["interact","interact/terminal"]
-  revision = "60caa86f173a89ef7a479fa400cc50faf6a2e369"
-
-[[projects]]
-  branch = "master"
-  name = "golang.org/x/crypto"
-  packages = ["curve25519","ed25519","ed25519/internal/edwards25519","ssh","ssh/terminal"]
-  revision = "6a293f2d4b14b8e6d3f0539e383f6d0d30fce3fd"
-
-[[projects]]
-  branch = "master"
   name = "golang.org/x/net"
-  packages = ["context","context/ctxhttp","html","html/atom","html/charset","http2","http2/hpack","idna","internal/timeseries","lex/httplex","proxy","trace"]
+  packages = ["html","html/atom","html/charset"]
   revision = "4b14673ba32bee7f5ac0f990a48f033919fd418b"
 
 [[projects]]
   branch = "master"
-  name = "golang.org/x/oauth2"
-  packages = [".","google","internal","jws","jwt"]
-  revision = "9ff8ebcc8e241d46f52ecc5bff0e5a2f2dbef402"
-
-[[projects]]
-  branch = "master"
   name = "golang.org/x/sys"
-  packages = ["unix","windows"]
+  packages = ["unix"]
   revision = "92ac112afc6efd90284acda2b046fc0e351228f6"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/text"
-  packages = ["collate","collate/build","encoding","encoding/charmap","encoding/htmlindex","encoding/internal","encoding/internal/identifier","encoding/japanese","encoding/korean","encoding/simplifiedchinese","encoding/traditionalchinese","encoding/unicode","internal/colltab","internal/gen","internal/tag","internal/triegen","internal/ucd","internal/utf8internal","language","runes","secure/bidirule","transform","unicode/bidi","unicode/cldr","unicode/norm","unicode/rangetable"]
+  packages = ["encoding","encoding/charmap","encoding/htmlindex","encoding/internal","encoding/internal/identifier","encoding/japanese","encoding/korean","encoding/simplifiedchinese","encoding/traditionalchinese","encoding/unicode","internal/gen","internal/tag","internal/utf8internal","language","runes","transform","unicode/cldr"]
   revision = "6eab0e8f74e86c598ec3b6fad4888e0c11482d48"
-
-[[projects]]
-  branch = "master"
-  name = "google.golang.org/api"
-  packages = ["gensupport","googleapi","googleapi/internal/uritemplates","googleapi/transport","internal","iterator","option","storage/v1","transport/http"]
-  revision = "76b09a3314405551b1f19de9944347fcda3f80ae"
-
-[[projects]]
-  name = "google.golang.org/appengine"
-  packages = [".","internal","internal/app_identity","internal/base","internal/datastore","internal/log","internal/modules","internal/remote_api","internal/urlfetch","urlfetch"]
-  revision = "150dc57a1b433e64154302bdc40b6bb8aefa313a"
-  version = "v1.0.0"
-
-[[projects]]
-  branch = "master"
-  name = "google.golang.org/genproto"
-  packages = ["googleapis/api/annotations","googleapis/iam/v1","googleapis/rpc/status"]
-  revision = "11c7f9e547da6db876260ce49ea7536985904c9b"
-
-[[projects]]
-  name = "google.golang.org/grpc"
-  packages = [".","balancer","codes","connectivity","credentials","grpclb/grpc_lb_v1/messages","grpclog","internal","keepalive","metadata","naming","peer","resolver","stats","status","tap","transport"]
-  revision = "5ffe3083946d5603a0578721101dc8165b1d5b5f"
-  version = "v1.7.2"
-
-[[projects]]
-  name = "gopkg.in/VividCortex/ewma.v1"
-  packages = ["."]
-  revision = "b24eb346a94c3ba12c1da1e564dbac1b498a77ce"
-  version = "v1.1.1"
-
-[[projects]]
-  name = "gopkg.in/cheggaaa/pb.v2"
-  packages = ["termutil"]
-  revision = "fec330ed6ef74d0a026da2c639821ee0d9f97687"
-  version = "v2.0.5"
-
-[[projects]]
-  name = "gopkg.in/fatih/color.v1"
-  packages = ["."]
-  revision = "570b54cabe6b8eb0bc2dfce68d964677d63b5260"
-  version = "v1.5.0"
-
-[[projects]]
-  name = "gopkg.in/mattn/go-colorable.v0"
-  packages = ["."]
-  revision = "167de6bfdfba052fa6b2d3664c8f5272e23c9072"
-  version = "v0.0.9"
-
-[[projects]]
-  name = "gopkg.in/mattn/go-isatty.v0"
-  packages = ["."]
-  revision = "0360b2af4f38e8d38c7fce2a9f4e702702d73a39"
-  version = "v0.0.3"
-
-[[projects]]
-  name = "gopkg.in/mattn/go-runewidth.v0"
-  packages = ["."]
-  revision = "9e777a8366cce605130a531d2cd6363d07ad7317"
-  version = "v0.0.2"
 
 [[projects]]
   branch = "v2"
@@ -339,6 +46,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "c95126ede2b928347c967ad1509d6ec14d6db3d07152b1fca2787e891e05a4f2"
+  inputs-digest = "0c75bd1c02d20c53799e22db3aff252ec65c80d2ac3a795ba4bcfa6e0a2f309b"
   solver-name = "gps-cdcl"
   solver-version = 1
