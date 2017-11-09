@@ -4,7 +4,8 @@ import (
 	"log"
 	"os"
 
-	createRelease "github.com/madamkiwi/windows2016fs-release/src/create/createRelease"
+	createRelease "create/createRelease"
+
 	"github.com/pivotal-cf/jhanda/flags"
 	"github.com/pivotal-cf/winfs-injector/injector"
 )
