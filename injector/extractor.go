@@ -14,6 +14,7 @@ type Extractor struct {
 }
 
 //go:generate counterfeiter -o ./fakes/extract_container.go --fake-name ExtractContainer . extractContainer
+
 type extractContainer interface {
 	OpenReader(string) (*zip.ReadCloser, error)
 	TempDir(string, string) (string, error)

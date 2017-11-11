@@ -1,0 +1,7 @@
+releases:
+- name: release-1
+  file: release-1.tgz
+  version: "1.0.0"
+other_key: other_data
+
+
