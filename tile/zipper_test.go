@@ -1,4 +1,4 @@
-package injector_test
+package tile_test
 
 import (
 	"archive/zip"
@@ -8,19 +8,19 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"github.com/pivotal-cf/winfs-injector/injector"
+	"github.com/pivotal-cf/winfs-injector/tile"
 )
 
 var _ = Describe("Zipper", func() {
 	Describe("Zip", func() {
 		var (
-			zipper  injector.Zipper
+			zipper  tile.Zipper
 			srcDir  string
 			zipFile *os.File
 		)
 
 		BeforeEach(func() {
-			zipper = injector.NewZipper()
+			zipper = tile.NewZipper()
 
 			var err error
 			srcDir, err = ioutil.TempDir("", "")
@@ -98,7 +98,7 @@ var _ = Describe("Zipper", func() {
 		var (
 			inputTile string
 			destDir   string
-			zipper    injector.Zipper
+			zipper    tile.Zipper
 		)
 
 		BeforeEach(func() {

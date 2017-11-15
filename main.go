@@ -9,7 +9,7 @@ import (
 	createRelease "create/createRelease"
 
 	"github.com/pivotal-cf/jhanda/flags"
-	"github.com/pivotal-cf/winfs-injector/injector"
+	"github.com/pivotal-cf/winfs-injector/tile"
 	"github.com/pivotal-cf/winfs-injector/winfsinjector"
 )
 
@@ -39,8 +39,8 @@ func main() {
 		return
 	}
 
-	var tileInjector = injector.NewTileInjector()
-	var zipper = injector.NewZipper()
+	var tileInjector = tile.NewTileInjector()
+	var zipper = tile.NewZipper()
 	var releaseCreator = createRelease.ReleaseCreator{}
 
 	wd, err := ioutil.TempDir("", "")

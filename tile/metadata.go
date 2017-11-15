@@ -1,4 +1,4 @@
-package injector
+package tile
 
 type Metadata struct {
 	Releases []Release

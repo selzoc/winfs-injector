@@ -1,4 +1,4 @@
-package injector_test
+package tile_test
 
 import (
 	. "github.com/onsi/ginkgo"
@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func TestInjector(t *testing.T) {
+func TestTile(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Injector Suite")
+	RunSpecs(t, "Tile Suite")
 }

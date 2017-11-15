@@ -4,11 +4,10 @@ import (
 	"errors"
 	"path/filepath"
 
-	"github.com/pivotal-cf/winfs-injector/injector"
-	"github.com/pivotal-cf/winfs-injector/injector/fakes"
-
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"github.com/pivotal-cf/winfs-injector/winfsinjector"
+	"github.com/pivotal-cf/winfs-injector/winfsinjector/fakes"
 )
 
 var _ = Describe("application", func() {
@@ -18,7 +17,7 @@ var _ = Describe("application", func() {
 			fakeInjector       *fakes.Injector
 			fakeZipper         *fakes.Zipper
 
-			app injector.Application
+			app winfsinjector.Application
 		)
 
 		BeforeEach(func() {
@@ -26,16 +25,16 @@ var _ = Describe("application", func() {
 			fakeInjector = new(fakes.Injector)
 			fakeZipper = new(fakes.Zipper)
 
-			injector.SetReadFile(func(string) ([]byte, error) {
+			winfsinjector.SetReadFile(func(string) ([]byte, error) {
 				return []byte("9.3.6"), nil
 			})
 
-			app = injector.NewApplication(fakeReleaseCreator, fakeInjector, fakeZipper)
+			app = winfsinjector.NewApplication(fakeReleaseCreator, fakeInjector, fakeZipper)
 		})
 
 		AfterEach(func() {
-			injector.ResetReadFile()
-			injector.ResetRemoveAll()
+			winfsinjector.ResetReadFile()
+			winfsinjector.ResetRemoveAll()
 		})
 
 		It("unzips the tile", func() {
@@ -84,7 +83,7 @@ var _ = Describe("application", func() {
 				removeAllPath      string
 			)
 
-			injector.SetRemoveAll(func(path string) error {
+			winfsinjector.SetRemoveAll(func(path string) error {
 				removeAllCallCount++
 				removeAllPath = path
 				return nil
@@ -139,7 +138,7 @@ var _ = Describe("application", func() {
 
 			Context("when removing the windows2016fs-release dir from the embed directory fails", func() {
 				It("returns an error", func() {
-					injector.SetRemoveAll(func(path string) error {
+					winfsinjector.SetRemoveAll(func(path string) error {
 						return errors.New("remove all failed")
 					})
 

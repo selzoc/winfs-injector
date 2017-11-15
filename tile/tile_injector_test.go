@@ -1,4 +1,4 @@
-package injector_test
+package tile_test
 
 import (
 	"io/ioutil"
@@ -9,12 +9,12 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"github.com/pivotal-cf/winfs-injector/injector"
+	"github.com/pivotal-cf/winfs-injector/tile"
 )
 
 var _ = Describe("TileInjector", func() {
 	var (
-		tileInjector injector.TileInjector
+		tileInjector tile.TileInjector
 
 		baseTmpDir       string
 		tileDir          string
@@ -22,7 +22,7 @@ var _ = Describe("TileInjector", func() {
 		releaseName      string
 		releaseVersion   string
 		metadataPath     string
-		expectedMetadata injector.Metadata
+		expectedMetadata tile.Metadata
 	)
 
 	BeforeEach(func() {
@@ -59,7 +59,7 @@ var _ = Describe("TileInjector", func() {
 		err = yaml.Unmarshal(expectedMetadataContents, &expectedMetadata)
 		Expect(err).NotTo(HaveOccurred())
 
-		tileInjector = injector.NewTileInjector()
+		tileInjector = tile.NewTileInjector()
 	})
 
 	AfterEach(func() {
@@ -74,7 +74,7 @@ var _ = Describe("TileInjector", func() {
 			rawMetadata, err := ioutil.ReadFile(metadataPath)
 			Expect(err).NotTo(HaveOccurred())
 
-			var actualMetadata injector.Metadata
+			var actualMetadata tile.Metadata
 			Expect(yaml.Unmarshal(rawMetadata, &actualMetadata)).To(Succeed())
 
 			Expect(actualMetadata).To(Equal(expectedMetadata))
