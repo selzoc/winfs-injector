@@ -13,8 +13,7 @@ import (
 	"github.com/pivotal-cf/winfs-injector/winfsinjector"
 )
 
-const usageText = `winfs-injector
-winfs-injector injects the Windows 2016 root file system into the Windows 2016 Runtime Tile.
+const usageText = `winfs-injector injects the Windows 2016 root file system into the Windows 2016 Runtime Tile.
 
 Usage: winfs-injector
   --input-tile, -i   path to input tile (example: /path/to/input.pivotal)
