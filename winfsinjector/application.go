@@ -8,6 +8,17 @@ import (
 	"strings"
 )
 
+var (
+	readFile  = ioutil.ReadFile
+	removeAll = os.RemoveAll
+)
+
+type Application struct {
+	injector       injector
+	releaseCreator releaseCreator
+	zipper         zipper
+}
+
 //go:generate counterfeiter -o ./fakes/injector.go --fake-name Injector . injector
 
 type injector interface {
@@ -25,17 +36,6 @@ type zipper interface {
 
 type releaseCreator interface {
 	CreateRelease(imageName, releaseDir, tarballPath, imageTagPath, versionDataPath, outputDir string) error
-}
-
-var (
-	readFile  = ioutil.ReadFile
-	removeAll = os.RemoveAll
-)
-
-type Application struct {
-	injector       injector
-	releaseCreator releaseCreator
-	zipper         zipper
 }
 
 func NewApplication(releaseCreator releaseCreator, injector injector, zipper zipper) Application {
