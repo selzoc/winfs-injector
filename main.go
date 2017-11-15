@@ -10,6 +10,7 @@ import (
 
 	"github.com/pivotal-cf/jhanda/flags"
 	"github.com/pivotal-cf/winfs-injector/injector"
+	"github.com/pivotal-cf/winfs-injector/winfsinjector"
 )
 
 const usageText = `winfs-injector
@@ -48,7 +49,7 @@ func main() {
 	}
 	defer os.RemoveAll(wd)
 
-	app := injector.NewApplication(releaseCreator, tileInjector, zipper)
+	app := winfsinjector.NewApplication(releaseCreator, tileInjector, zipper)
 	err = app.Run(arguments.InputTile, arguments.OutputTile, wd)
 	if err != nil {
 		log.Fatal(err)

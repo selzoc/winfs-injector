@@ -1,4 +1,4 @@
-package injector_test
+package winfsinjector_test
 
 import (
 	"errors"
