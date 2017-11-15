@@ -35,6 +35,18 @@ var _ = Describe("application", func() {
 
 		AfterEach(func() {
 			injector.ResetReadFile()
+			injector.ResetRemoveAll()
+		})
+
+		It("unzips the tile", func() {
+			err := app.Run("/path/to/input/tile", "/path/to/output/tile", "/path/to/working/dir")
+			Expect(err).NotTo(HaveOccurred())
+
+			Expect(fakeZipper.UnzipCallCount()).To(Equal(1))
+
+			inputTile, extractedTileDir := fakeZipper.UnzipArgsForCall(0)
+			Expect(inputTile).To(Equal(filepath.Join("/", "path", "to", "input", "tile")))
+			Expect(extractedTileDir).To(Equal(filepath.Join("/", "path", "to", "working", "dir", "extracted-tile")))
 		})
 
 		It("creates the release", func() {
@@ -64,6 +76,25 @@ var _ = Describe("application", func() {
 			Expect(releaseName).To(Equal("windows2016fs"))
 			Expect(releaseVersion).To(Equal("9.3.6"))
 			Expect(tileDir).To(Equal(filepath.Join("/path/to/working/dir", "extracted-tile")))
+		})
+
+		It("removes the windows2016fs-release from the embed directory", func() {
+			var (
+				removeAllCallCount int
+				removeAllPath      string
+			)
+
+			injector.SetRemoveAll(func(path string) error {
+				removeAllCallCount++
+				removeAllPath = path
+				return nil
+			})
+
+			err := app.Run("/path/to/input/tile", "/path/to/output/tile", "/path/to/working/dir")
+			Expect(err).NotTo(HaveOccurred())
+
+			Expect(removeAllCallCount).To(Equal(1))
+			Expect(removeAllPath).To(Equal(filepath.Join("/", "path", "to", "working", "dir", "extracted-tile", "embed", "windows2016fs-release")))
 		})
 
 		It("zips up the injected tile dir", func() {
@@ -103,6 +134,17 @@ var _ = Describe("application", func() {
 
 					err := app.Run("/path/to/input/tile", "/path/to/output/tile", "/path/to/working/dir")
 					Expect(err).To(MatchError("some-error"))
+				})
+			})
+
+			Context("when removing the windows2016fs-release dir from the embed directory fails", func() {
+				It("returns an error", func() {
+					injector.SetRemoveAll(func(path string) error {
+						return errors.New("remove all failed")
+					})
+
+					err := app.Run("/path/to/input/tile", "/path/to/output/tile", "/path/to/working/dir")
+					Expect(err).To(MatchError("remove all failed"))
 				})
 			})
 

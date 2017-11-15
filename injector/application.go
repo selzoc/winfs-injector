@@ -3,6 +3,7 @@ package injector
 import (
 	"fmt"
 	"io/ioutil"
+	"os"
 	"path/filepath"
 	"strings"
 )
@@ -26,7 +27,10 @@ type releaseCreator interface {
 	CreateRelease(imageName, releaseDir, tarballPath, imageTagPath, versionDataPath, outputDir string) error
 }
 
-var readFile = ioutil.ReadFile
+var (
+	readFile  = ioutil.ReadFile
+	removeAll = os.RemoveAll
+)
 
 type Application struct {
 	injector       injector
@@ -68,6 +72,11 @@ func (a Application) Run(inputTile, outputTile, workingDir string) error {
 	}
 
 	err = a.injector.AddReleaseToMetadata(tarballPath, releaseName, releaseVersion, extractedTileDir)
+	if err != nil {
+		return err
+	}
+
+	err = removeAll(filepath.Join(extractedTileDir, "embed", "windows2016fs-release"))
 	if err != nil {
 		return err
 	}
