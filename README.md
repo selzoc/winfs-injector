@@ -4,6 +4,13 @@
 This is an operator CLI tool to inject the windows file system into the Pivotal
 Windows Runtime Tile.
 
+### Example Usage
+```bash
+$ winfs-injector \
+  --input-tile /path/to/input.pivotal \
+  --output-tile /path/to/output.pivotal
+```
+
 ### Building
 
 In order to build the winfs-injector, it needs to be built within the
