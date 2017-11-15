@@ -5,7 +5,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("winfs-injector", func() {
+var _ = XDescribe("winfs-injector", func() {
 	It("compiles", func() {
 		Expect(true).To(BeTrue())
 	})
