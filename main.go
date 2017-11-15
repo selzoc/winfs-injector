@@ -32,8 +32,6 @@ func main() {
 	}
 	defer os.RemoveAll(wd)
 
-	log.Printf("working dir: %s\n", wd)
-
 	app := injector.NewApplication(releaseCreator, tileInjector, zipper)
 	err = app.Run(arguments.InputTile, arguments.OutputTile, wd)
 	if err != nil {
