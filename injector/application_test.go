@@ -12,7 +12,7 @@ import (
 )
 
 var _ = Describe("application", func() {
-	Describe("Run application", func() {
+	Describe("Run", func() {
 		var (
 			fakeReleaseCreator *fakes.ReleaseCreator
 			fakeInjector       *fakes.Injector
@@ -37,7 +37,7 @@ var _ = Describe("application", func() {
 			injector.ResetReadFile()
 		})
 
-		It("Creates the release", func() {
+		It("creates the release", func() {
 			err := app.Run("/path/to/input/tile", "/path/to/output/tile", "/path/to/working/dir")
 			Expect(err).NotTo(HaveOccurred())
 
@@ -80,7 +80,7 @@ var _ = Describe("application", func() {
 			Expect(zipFile).To(Equal("/path/to/output/tile"))
 		})
 
-		Context("Failure cases", func() {
+		Context("failure cases", func() {
 			Context("when the zipper fails to unzip the tile", func() {
 				It("returns the error", func() {
 					fakeZipper.UnzipReturns(errors.New("some-error"))
