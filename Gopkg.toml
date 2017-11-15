@@ -32,3 +32,15 @@
 [[constraint]]
   branch = "master"
   name = "github.com/pivotal-cf/jhanda"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/jhoonb/archivex"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/gen2brain/go-unarr"
+
+[[constraint]]
+  name = "github.com/mholt/archiver"
+  version = "2.0.0"

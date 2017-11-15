@@ -1,6 +1,7 @@
 package main
 
 import (
+	"io/ioutil"
 	"log"
 	"os"
 
@@ -13,7 +14,7 @@ import (
 func main() {
 	var arguments struct {
 		InputTile  string `short:"i" long:"input-tile" description:"path to the input tile" default:""`
-		WorkingDir string `short:"w" long:"working-dir" description:"tmp path to work in" default:""`
+		OutputTile string `short:"o" long:"output-tile" description:"path to write tile" default:""`
 	}
 
 	_, err := flags.Parse(&arguments, os.Args[1:])
@@ -21,12 +22,20 @@ func main() {
 		log.Fatal(err)
 	}
 
-	var container = injector.NewExtractContainer()
-	var extractor = injector.NewExtractor(container)
+	var tileInjector = injector.NewTileInjector()
+	var zipper = injector.NewZipper()
 	var releaseCreator = createRelease.ReleaseCreator{}
 
-	app := injector.NewApplication(extractor, releaseCreator)
-	err = app.Run(arguments.InputTile, arguments.WorkingDir)
+	wd, err := ioutil.TempDir("", "")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer os.RemoveAll(wd)
+
+	log.Printf("working dir: %s\n", wd)
+
+	app := injector.NewApplication(releaseCreator, tileInjector, zipper)
+	err = app.Run(arguments.InputTile, arguments.OutputTile, wd)
 	if err != nil {
 		log.Fatal(err)
 	}
