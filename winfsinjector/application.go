@@ -46,7 +46,6 @@ func NewApplication(releaseCreator releaseCreator, injector injector, zipper zip
 	}
 }
 
-// /extracted-tile/embed/windows2016fs-release/VERSION
 func (a Application) Run(inputTile, outputTile, workingDir string) error {
 	extractedTileDir := filepath.Join(workingDir, "extracted-tile")
 	err := a.zipper.Unzip(inputTile, extractedTileDir)
