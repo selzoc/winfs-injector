@@ -1,6 +1,7 @@
 package winfsinjector
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -47,6 +48,14 @@ func NewApplication(releaseCreator releaseCreator, injector injector, zipper zip
 }
 
 func (a Application) Run(inputTile, outputTile, workingDir string) error {
+	if inputTile == "" {
+		return errors.New("--input-tile is required")
+	}
+
+	if outputTile == "" {
+		return errors.New("--output-tile is required")
+	}
+
 	extractedTileDir := filepath.Join(workingDir, "extracted-tile")
 	err := a.zipper.Unzip(inputTile, extractedTileDir)
 	if err != nil {

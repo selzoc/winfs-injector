@@ -155,6 +155,20 @@ var _ = Describe("application", func() {
 					Expect(err).To(MatchError("some-error"))
 				})
 			})
+
+			Context("when input tile is not provided", func() {
+				It("returns an error", func() {
+					err := app.Run("", "/path/to/output/tile", "/path/to/working/dir")
+					Expect(err).To(MatchError("--input-tile is required"))
+				})
+			})
+
+			Context("when output tile is not provided", func() {
+				It("returns an error", func() {
+					err := app.Run("/path/to/input/tile", "", "/path/to/working/dir")
+					Expect(err).To(MatchError("--output-tile is required"))
+				})
+			})
 		})
 	})
 })

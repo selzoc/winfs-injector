@@ -33,7 +33,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	if arguments.Help || arguments.InputTile == "" || arguments.OutputTile == "" {
+	if arguments.Help {
 		printUsage()
 		return
 	}
@@ -51,7 +51,8 @@ func main() {
 	app := winfsinjector.NewApplication(releaseCreator, tileInjector, zipper)
 	err = app.Run(arguments.InputTile, arguments.OutputTile, wd)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Fprintf(os.Stderr, "%s\n", err.Error())
+		os.Exit(1)
 	}
 }
 
