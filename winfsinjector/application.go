@@ -36,7 +36,7 @@ type zipper interface {
 //go:generate counterfeiter -o ./fakes/release_creator.go --fake-name ReleaseCreator . releaseCreator
 
 type releaseCreator interface {
-	CreateRelease(imageName, releaseDir, tarballPath, imageTagPath, versionDataPath, outputDir string) error
+	CreateRelease(imageName, releaseDir, tarballPath, imageTagPath, versionDataPath string) error
 }
 
 func NewApplication(releaseCreator releaseCreator, injector injector, zipper zipper) Application {
@@ -70,11 +70,10 @@ func (a Application) Run(inputTile, outputTile, workingDir string) error {
 
 	releaseName := "windows2016fs"
 	imageName := "cloudfoundry/windows2016fs"
-	winfsBlobsDir := filepath.Join(releaseDir, "blobs", "windows2016fs")
 	imageTagPath := filepath.Join(releaseDir, "src", "code.cloudfoundry.org", "windows2016fs", "IMAGE_TAG")
 	tarballPath := filepath.Join(extractedTileDir, "releases", fmt.Sprintf("%s-%s.tgz", releaseName, releaseVersion))
 
-	err = a.releaseCreator.CreateRelease(imageName, releaseDir, tarballPath, imageTagPath, filepath.Join(releaseDir, "VERSION"), winfsBlobsDir)
+	err = a.releaseCreator.CreateRelease(imageName, releaseDir, tarballPath, imageTagPath, filepath.Join(releaseDir, "VERSION"))
 	if err != nil {
 		return err
 	}

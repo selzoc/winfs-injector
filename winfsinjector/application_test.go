@@ -53,13 +53,12 @@ var _ = Describe("application", func() {
 			Expect(err).NotTo(HaveOccurred())
 
 			Expect(fakeReleaseCreator.CreateReleaseCallCount()).To(Equal(1))
-			imageName, releaseDir, tarballPath, imageTagPath, versionDataPath, winfsBlobsDir := fakeReleaseCreator.CreateReleaseArgsForCall(0)
+			imageName, releaseDir, tarballPath, imageTagPath, versionDataPath := fakeReleaseCreator.CreateReleaseArgsForCall(0)
 			Expect(imageName).To(Equal("cloudfoundry/windows2016fs"))
 			Expect(releaseDir).To(Equal("/path/to/working/dir/extracted-tile/embed/windows2016fs-release"))
 			Expect(tarballPath).To(Equal("/path/to/working/dir/extracted-tile/releases/windows2016fs-9.3.6.tgz"))
 			Expect(imageTagPath).To(Equal("/path/to/working/dir/extracted-tile/embed/windows2016fs-release/src/code.cloudfoundry.org/windows2016fs/IMAGE_TAG"))
 			Expect(versionDataPath).To(Equal("/path/to/working/dir/extracted-tile/embed/windows2016fs-release/VERSION"))
-			Expect(winfsBlobsDir).To(Equal("/path/to/working/dir/extracted-tile/embed/windows2016fs-release/blobs/windows2016fs"))
 		})
 
 		It("injects the build windows release into the extracted tile", func() {
