@@ -8,7 +8,7 @@ import (
 
 	createRelease "create/createRelease"
 
-	"github.com/pivotal-cf/jhanda/flags"
+	"github.com/pivotal-cf/jhanda"
 	"github.com/pivotal-cf/winfs-injector/tile"
 	"github.com/pivotal-cf/winfs-injector/winfsinjector"
 )
@@ -28,7 +28,7 @@ func main() {
 		Help       bool   `short:"h" long:"help"        description:"prints this usage information"                             default:"false"`
 	}
 
-	_, err := flags.Parse(&arguments, os.Args[1:])
+	_, err := jhanda.Parse(&arguments, os.Args[1:])
 	if err != nil {
 		log.Fatal(err)
 	}
