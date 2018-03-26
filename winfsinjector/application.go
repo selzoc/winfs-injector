@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strings"
 )
 
@@ -66,6 +68,22 @@ func (a Application) Run(inputTile, outputTile, workingDir string) error {
 	releaseVersion, err := a.extractReleaseVersion(releaseDir)
 	if err != nil {
 		return err
+	}
+
+	if runtime.GOOS == "windows" {
+		cmd := exec.Command("git", "config", "core.filemode", "false")
+		cmd.Dir = releaseDir
+		stdoutStderr, err := cmd.CombinedOutput()
+		if err != nil {
+			return fmt.Errorf("unable to fix file permissions for windows: %s, %s", stdoutStderr, err)
+		}
+
+		cmd = exec.Command("git", "submodule", "foreach", "git", "config", "core.filemode", "false")
+		cmd.Dir = releaseDir
+		stdoutStderr, err = cmd.CombinedOutput()
+		if err != nil {
+			return fmt.Errorf("unable to fix file permissions for windows: %s, %s", stdoutStderr, err)
+		}
 	}
 
 	releaseName := "windows2016fs"
