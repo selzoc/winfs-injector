@@ -88,7 +88,7 @@ func (a Application) Run(inputTile, outputTile, workingDir string) error {
 
 	releaseName := "windows2016fs"
 	imageName := "cloudfoundry/windows2016fs"
-	imageTagPath := filepath.Join(releaseDir, "src", "code.cloudfoundry.org", "windows2016fs", "IMAGE_TAG")
+	imageTagPath := filepath.Join(releaseDir, "src", "code.cloudfoundry.org", "windows2016fs", "1709", "IMAGE_TAG")
 	tarballPath := filepath.Join(extractedTileDir, "releases", fmt.Sprintf("%s-%s.tgz", releaseName, releaseVersion))
 
 	err = a.releaseCreator.CreateRelease(imageName, releaseDir, tarballPath, imageTagPath, filepath.Join(releaseDir, "VERSION"))
