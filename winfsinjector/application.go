@@ -64,7 +64,7 @@ func (a Application) Run(inputTile, outputTile, workingDir string) error {
 		return err
 	}
 
-	releaseDir := filepath.Join(extractedTileDir, "embed", "windows2016fs-release")
+	releaseDir := filepath.Join(extractedTileDir, "embed", "windowsfs-release")
 	releaseVersion, err := a.extractReleaseVersion(releaseDir)
 	if err != nil {
 		return err
@@ -86,9 +86,10 @@ func (a Application) Run(inputTile, outputTile, workingDir string) error {
 		}
 	}
 
-	releaseName := "windows2016fs"
+	// Dependent on what the tile metadata expects, p-windows-runtime-2016/jobs/windows1803fs.yml
+	releaseName := "windows1803fs"
 	imageName := "cloudfoundry/windows2016fs"
-	imageTagPath := filepath.Join(releaseDir, "src", "code.cloudfoundry.org", "windows2016fs", "1709", "IMAGE_TAG")
+	imageTagPath := filepath.Join(releaseDir, "src", "code.cloudfoundry.org", "windows2016fs", "1803", "IMAGE_TAG")
 	tarballPath := filepath.Join(extractedTileDir, "releases", fmt.Sprintf("%s-%s.tgz", releaseName, releaseVersion))
 
 	err = a.releaseCreator.CreateRelease(imageName, releaseDir, tarballPath, imageTagPath, filepath.Join(releaseDir, "VERSION"))
@@ -101,7 +102,7 @@ func (a Application) Run(inputTile, outputTile, workingDir string) error {
 		return err
 	}
 
-	err = removeAll(filepath.Join(extractedTileDir, "embed", "windows2016fs-release"))
+	err = removeAll(filepath.Join(extractedTileDir, "embed", "windowsfs-release"))
 	if err != nil {
 		return err
 	}

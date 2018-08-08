@@ -55,10 +55,10 @@ var _ = Describe("application", func() {
 			Expect(fakeReleaseCreator.CreateReleaseCallCount()).To(Equal(1))
 			imageName, releaseDir, tarballPath, imageTagPath, versionDataPath := fakeReleaseCreator.CreateReleaseArgsForCall(0)
 			Expect(imageName).To(Equal("cloudfoundry/windows2016fs"))
-			Expect(releaseDir).To(Equal("/path/to/working/dir/extracted-tile/embed/windows2016fs-release"))
-			Expect(tarballPath).To(Equal("/path/to/working/dir/extracted-tile/releases/windows2016fs-9.3.6.tgz"))
-			Expect(imageTagPath).To(Equal("/path/to/working/dir/extracted-tile/embed/windows2016fs-release/src/code.cloudfoundry.org/windows2016fs/1709/IMAGE_TAG"))
-			Expect(versionDataPath).To(Equal("/path/to/working/dir/extracted-tile/embed/windows2016fs-release/VERSION"))
+			Expect(releaseDir).To(Equal("/path/to/working/dir/extracted-tile/embed/windowsfs-release"))
+			Expect(tarballPath).To(Equal("/path/to/working/dir/extracted-tile/releases/windows1803fs-9.3.6.tgz"))
+			Expect(imageTagPath).To(Equal("/path/to/working/dir/extracted-tile/embed/windowsfs-release/src/code.cloudfoundry.org/windows2016fs/1803/IMAGE_TAG"))
+			Expect(versionDataPath).To(Equal("/path/to/working/dir/extracted-tile/embed/windowsfs-release/VERSION"))
 		})
 
 		It("injects the build windows release into the extracted tile", func() {
@@ -70,8 +70,8 @@ var _ = Describe("application", func() {
 
 			Expect(fakeInjector.AddReleaseToMetadataCallCount()).To(Equal(1))
 			releasePath, releaseName, releaseVersion, tileDir := fakeInjector.AddReleaseToMetadataArgsForCall(0)
-			Expect(releasePath).To(Equal("/path/to/working/dir/extracted-tile/releases/windows2016fs-9.3.6.tgz"))
-			Expect(releaseName).To(Equal("windows2016fs"))
+			Expect(releasePath).To(Equal("/path/to/working/dir/extracted-tile/releases/windows1803fs-9.3.6.tgz"))
+			Expect(releaseName).To(Equal("windows1803fs"))
 			Expect(releaseVersion).To(Equal("9.3.6"))
 			Expect(tileDir).To(Equal(filepath.Join("/path/to/working/dir", "extracted-tile")))
 		})
@@ -92,7 +92,7 @@ var _ = Describe("application", func() {
 			Expect(err).NotTo(HaveOccurred())
 
 			Expect(removeAllCallCount).To(Equal(1))
-			Expect(removeAllPath).To(Equal(filepath.Join("/", "path", "to", "working", "dir", "extracted-tile", "embed", "windows2016fs-release")))
+			Expect(removeAllPath).To(Equal(filepath.Join("/", "path", "to", "working", "dir", "extracted-tile", "embed", "windowsfs-release")))
 		})
 
 		It("zips up the injected tile dir", func() {
