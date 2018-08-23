@@ -26,8 +26,20 @@ var _ = Describe("application", func() {
 			fakeInjector = new(fakes.Injector)
 			fakeZipper = new(fakes.Zipper)
 
+			readFileCallCount := 0
 			winfsinjector.SetReadFile(func(string) ([]byte, error) {
-				return []byte("9.3.6"), nil
+				readFileCallCount++
+				switch readFileCallCount {
+				case 1:
+					// reading VERSION file
+					return []byte("9.3.6"), nil
+				case 2:
+					// reading config/final.yml
+					return []byte(`name: windows1803fs`), nil
+				default:
+					return nil, errors.New("called readFile more times than expected")
+
+				}
 			})
 
 			fakeEmbeddedDirectory := new(fakes.FileInfo)

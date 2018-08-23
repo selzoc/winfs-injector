@@ -9,6 +9,8 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+
+	yaml "gopkg.in/yaml.v2"
 )
 
 var (
@@ -106,8 +108,11 @@ func (a Application) Run(inputTile, outputTile, workingDir string) error {
 		}
 	}
 
-	// Dependent on what the tile metadata expects, p-windows-runtime-2016/jobs/windows1803fs.yml
-	releaseName := "windows1803fs"
+	releaseName, err := a.extractReleaseName(embeddedReleaseDir)
+	if err != nil {
+		return err
+	}
+
 	imageName := "cloudfoundry/windows2016fs"
 	imageTagPath := filepath.Join(embeddedReleaseDir, "src", "code.cloudfoundry.org", "windows2016fs", "1803", "IMAGE_TAG")
 	tarballPath := filepath.Join(extractedTileDir, "releases", fmt.Sprintf("%s-%s.tgz", releaseName, releaseVersion))
@@ -137,4 +142,23 @@ func (a Application) extractReleaseVersion(releaseDir string) (string, error) {
 	}
 
 	return strings.TrimSuffix(string(rawReleaseVersion), "\n"), nil
+}
+
+func (a Application) extractReleaseName(releaseDir string) (string, error) {
+	contents, err := readFile(filepath.Join(releaseDir, "config", "final.yml"))
+	if err != nil {
+		return "", err
+	}
+
+	type NameFile struct {
+		Name string `yaml:"name"`
+	}
+
+	var f NameFile
+	err = yaml.Unmarshal(contents, &f)
+	if err != nil {
+		return "", err
+	}
+
+	return f.Name, nil
 }
