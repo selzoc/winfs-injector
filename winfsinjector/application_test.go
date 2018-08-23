@@ -44,7 +44,7 @@ var _ = Describe("application", func() {
 
 			fakeEmbeddedDirectory := new(fakes.FileInfo)
 			fakeEmbeddedDirectory.IsDirReturns(true)
-			fakeEmbeddedDirectory.NameReturns("/path/to/working/dir/extracted-tile/embed/windowsfs-release")
+			fakeEmbeddedDirectory.NameReturns("windowsfs-release")
 
 			winfsinjector.SetReadDir(func(string) ([]os.FileInfo, error) {
 				return []os.FileInfo{
@@ -167,7 +167,7 @@ var _ = Describe("application", func() {
 						// reading the embeddedReleaseDirectory
 						fakeEmbeddedDirectory := new(fakes.FileInfo)
 						fakeEmbeddedDirectory.IsDirReturns(true)
-						fakeEmbeddedDirectory.NameReturns("/path/to/working/dir/extracted-tile/embed/windowsfs-release")
+						fakeEmbeddedDirectory.NameReturns("windowsfs-release")
 
 						return []os.FileInfo{
 							fakeEmbeddedDirectory,
@@ -185,7 +185,7 @@ var _ = Describe("application", func() {
 			Context("when the windows2016fs has only IMAGE_TAG", func() {
 
 				BeforeEach(func() {
-					fakeImageDirectoryContents.NameReturns("/some/path/IMAGE_TAG")
+					fakeImageDirectoryContents.NameReturns("IMAGE_TAG")
 					fakeImageDirectoryContents.IsDirReturns(false)
 				})
 
@@ -206,7 +206,7 @@ var _ = Describe("application", func() {
 
 			Context("when the windows2016fs has 1709/IMAGE_TAG", func() {
 				BeforeEach(func() {
-					fakeImageDirectoryContents.NameReturns("/some/path/1709")
+					fakeImageDirectoryContents.NameReturns("1709")
 					fakeImageDirectoryContents.IsDirReturns(true)
 				})
 

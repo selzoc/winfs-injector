@@ -71,7 +71,8 @@ func (a Application) Run(inputTile, outputTile, workingDir string) error {
 	}
 
 	// find what the embedded directory is
-	files, err := readDir(filepath.Join(extractedTileDir, "embed"))
+	embedDirectory := filepath.Join(extractedTileDir, "embed")
+	files, err := readDir(embedDirectory)
 	if err != nil {
 		return err
 	}
@@ -87,7 +88,7 @@ func (a Application) Run(inputTile, outputTile, workingDir string) error {
 		return errors.New("the embedded file system is not a directory; please contact the tile authors to fix")
 	}
 
-	embeddedReleaseDir := e.Name()
+	embeddedReleaseDir := filepath.Join(embedDirectory, e.Name())
 	releaseVersion, err := a.extractReleaseVersion(embeddedReleaseDir)
 	if err != nil {
 		return err
