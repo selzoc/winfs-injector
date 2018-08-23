@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"runtime"
 	"strings"
 
@@ -114,7 +115,11 @@ func (a Application) Run(inputTile, outputTile, workingDir string) error {
 	}
 
 	imageName := "cloudfoundry/windows2016fs"
-	imageTagPath := filepath.Join(embeddedReleaseDir, "src", "code.cloudfoundry.org", "windows2016fs", "1803", "IMAGE_TAG")
+	imageTagPath, err := a.determineImageTagPath(releaseName, embeddedReleaseDir)
+	if err != nil {
+		return err
+	}
+
 	tarballPath := filepath.Join(extractedTileDir, "releases", fmt.Sprintf("%s-%s.tgz", releaseName, releaseVersion))
 
 	err = a.releaseCreator.CreateRelease(releaseName, imageName, embeddedReleaseDir, tarballPath, imageTagPath, releaseVersion)
@@ -161,4 +166,29 @@ func (a Application) extractReleaseName(releaseDir string) (string, error) {
 	}
 
 	return f.Name, nil
+}
+
+func (a Application) determineImageTagPath(releaseName, releaseDir string) (string, error) {
+	re, err := regexp.Compile(`windows(\d{4})fs`)
+	if err != nil {
+		return "", err
+	}
+
+	matches := re.FindStringSubmatch(releaseName)
+	if len(matches) != 2 {
+		return "", errors.New("could not match release name against `windows(\\d4)fs` to determine stemcell line")
+	}
+	stemcellLine := matches[1]
+
+	var imageTagPath string
+	switch stemcellLine {
+	case "2016":
+		// either windowsfs/IMAGE_TAG or windowsfs/1709/IMAGE_TAG
+
+		imageTagPath = ""
+	default:
+		imageTagPath = filepath.Join(releaseDir, "src", "code.cloudfoundry.org", "windows2016fs", stemcellLine, "IMAGE_TAG")
+	}
+
+	return imageTagPath, nil
 }
