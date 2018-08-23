@@ -65,25 +65,20 @@ func printUsage() {
 
 type ReleaseCreator struct{}
 
-func (rc ReleaseCreator) CreateRelease(imageName, releaseDir, tarballPath, imageTagPath, versionDataPath string) error {
+func (rc ReleaseCreator) CreateRelease(releaseName, imageName, releaseDir, tarballPath, imageTagPath, version string) error {
 	tagData, err := ioutil.ReadFile(imageTagPath)
 	if err != nil {
 		return err
 	}
 	imageTag := string(tagData)
 
-	h := hydrator.New(log.New(os.Stdout, "", 0), filepath.Join(releaseDir, "blobs", "windows1803fs"), imageName, imageTag, false)
+	h := hydrator.New(log.New(os.Stdout, "", 0), filepath.Join(releaseDir, "blobs", releaseName), imageName, imageTag, false)
 	if err := h.Run(); err != nil {
 		return err
 	}
 
-	versionData, err := ioutil.ReadFile(versionDataPath)
-	if err != nil {
-		return err
-	}
-
 	releaseVersion := cmd.VersionArg{}
-	if err := releaseVersion.UnmarshalFlag(string(versionData)); err != nil {
+	if err := releaseVersion.UnmarshalFlag(version); err != nil {
 		return err
 	}
 

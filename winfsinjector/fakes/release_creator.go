@@ -6,14 +6,15 @@ import (
 )
 
 type ReleaseCreator struct {
-	CreateReleaseStub        func(imageName, releaseDir, tarballPath, imageTagPath, versionDataPath string) error
+	CreateReleaseStub        func(releaseName, imageName, releaseDir, tarballPath, imageTagPath, version string) error
 	createReleaseMutex       sync.RWMutex
 	createReleaseArgsForCall []struct {
-		imageName       string
-		releaseDir      string
-		tarballPath     string
-		imageTagPath    string
-		versionDataPath string
+		releaseName  string
+		imageName    string
+		releaseDir   string
+		tarballPath  string
+		imageTagPath string
+		version      string
 	}
 	createReleaseReturns struct {
 		result1 error
@@ -25,20 +26,21 @@ type ReleaseCreator struct {
 	invocationsMutex sync.RWMutex
 }
 
-func (fake *ReleaseCreator) CreateRelease(imageName string, releaseDir string, tarballPath string, imageTagPath string, versionDataPath string) error {
+func (fake *ReleaseCreator) CreateRelease(releaseName string, imageName string, releaseDir string, tarballPath string, imageTagPath string, version string) error {
 	fake.createReleaseMutex.Lock()
 	ret, specificReturn := fake.createReleaseReturnsOnCall[len(fake.createReleaseArgsForCall)]
 	fake.createReleaseArgsForCall = append(fake.createReleaseArgsForCall, struct {
-		imageName       string
-		releaseDir      string
-		tarballPath     string
-		imageTagPath    string
-		versionDataPath string
-	}{imageName, releaseDir, tarballPath, imageTagPath, versionDataPath})
-	fake.recordInvocation("CreateRelease", []interface{}{imageName, releaseDir, tarballPath, imageTagPath, versionDataPath})
+		releaseName  string
+		imageName    string
+		releaseDir   string
+		tarballPath  string
+		imageTagPath string
+		version      string
+	}{releaseName, imageName, releaseDir, tarballPath, imageTagPath, version})
+	fake.recordInvocation("CreateRelease", []interface{}{releaseName, imageName, releaseDir, tarballPath, imageTagPath, version})
 	fake.createReleaseMutex.Unlock()
 	if fake.CreateReleaseStub != nil {
-		return fake.CreateReleaseStub(imageName, releaseDir, tarballPath, imageTagPath, versionDataPath)
+		return fake.CreateReleaseStub(releaseName, imageName, releaseDir, tarballPath, imageTagPath, version)
 	}
 	if specificReturn {
 		return ret.result1
@@ -52,10 +54,10 @@ func (fake *ReleaseCreator) CreateReleaseCallCount() int {
 	return len(fake.createReleaseArgsForCall)
 }
 
-func (fake *ReleaseCreator) CreateReleaseArgsForCall(i int) (string, string, string, string, string) {
+func (fake *ReleaseCreator) CreateReleaseArgsForCall(i int) (string, string, string, string, string, string) {
 	fake.createReleaseMutex.RLock()
 	defer fake.createReleaseMutex.RUnlock()
-	return fake.createReleaseArgsForCall[i].imageName, fake.createReleaseArgsForCall[i].releaseDir, fake.createReleaseArgsForCall[i].tarballPath, fake.createReleaseArgsForCall[i].imageTagPath, fake.createReleaseArgsForCall[i].versionDataPath
+	return fake.createReleaseArgsForCall[i].releaseName, fake.createReleaseArgsForCall[i].imageName, fake.createReleaseArgsForCall[i].releaseDir, fake.createReleaseArgsForCall[i].tarballPath, fake.createReleaseArgsForCall[i].imageTagPath, fake.createReleaseArgsForCall[i].version
 }
 
 func (fake *ReleaseCreator) CreateReleaseReturns(result1 error) {

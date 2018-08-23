@@ -14,6 +14,7 @@ import (
 var (
 	readFile  = ioutil.ReadFile
 	removeAll = os.RemoveAll
+	readDir   = ioutil.ReadDir
 )
 
 type Application struct {
@@ -21,6 +22,8 @@ type Application struct {
 	releaseCreator releaseCreator
 	zipper         zipper
 }
+
+//go:generate counterfeiter -o ./fakes/file_info.go --fake-name FileInfo os.FileInfo
 
 //go:generate counterfeiter -o ./fakes/injector.go --fake-name Injector . injector
 
@@ -38,7 +41,7 @@ type zipper interface {
 //go:generate counterfeiter -o ./fakes/release_creator.go --fake-name ReleaseCreator . releaseCreator
 
 type releaseCreator interface {
-	CreateRelease(imageName, releaseDir, tarballPath, imageTagPath, versionDataPath string) error
+	CreateRelease(releaseName, imageName, releaseDir, tarballPath, imageTagPath, version string) error
 }
 
 func NewApplication(releaseCreator releaseCreator, injector injector, zipper zipper) Application {
@@ -64,22 +67,39 @@ func (a Application) Run(inputTile, outputTile, workingDir string) error {
 		return err
 	}
 
-	releaseDir := filepath.Join(extractedTileDir, "embed", "windowsfs-release")
-	releaseVersion, err := a.extractReleaseVersion(releaseDir)
+	// find what the embedded directory is
+	files, err := readDir(filepath.Join(extractedTileDir, "embed"))
+	if err != nil {
+		return err
+	}
+
+	if len(files) > 1 {
+		return errors.New("there is more than one file system embedded in the tile; please contact the tile authors to fix")
+	} else if len(files) == 0 {
+		return errors.New("there is no file system embedded in the tile; please contact the tile authors to fix")
+	}
+
+	e := files[0]
+	if !e.IsDir() {
+		return errors.New("the embedded file system is not a directory; please contact the tile authors to fix")
+	}
+
+	embeddedReleaseDir := e.Name()
+	releaseVersion, err := a.extractReleaseVersion(embeddedReleaseDir)
 	if err != nil {
 		return err
 	}
 
 	if runtime.GOOS == "windows" {
 		cmd := exec.Command("git", "config", "core.filemode", "false")
-		cmd.Dir = releaseDir
+		cmd.Dir = embeddedReleaseDir
 		stdoutStderr, err := cmd.CombinedOutput()
 		if err != nil {
 			return fmt.Errorf("unable to fix file permissions for windows: %s, %s", stdoutStderr, err)
 		}
 
 		cmd = exec.Command("git", "submodule", "foreach", "git", "config", "core.filemode", "false")
-		cmd.Dir = releaseDir
+		cmd.Dir = embeddedReleaseDir
 		stdoutStderr, err = cmd.CombinedOutput()
 		if err != nil {
 			return fmt.Errorf("unable to fix file permissions for windows: %s, %s", stdoutStderr, err)
@@ -89,10 +109,10 @@ func (a Application) Run(inputTile, outputTile, workingDir string) error {
 	// Dependent on what the tile metadata expects, p-windows-runtime-2016/jobs/windows1803fs.yml
 	releaseName := "windows1803fs"
 	imageName := "cloudfoundry/windows2016fs"
-	imageTagPath := filepath.Join(releaseDir, "src", "code.cloudfoundry.org", "windows2016fs", "1803", "IMAGE_TAG")
+	imageTagPath := filepath.Join(embeddedReleaseDir, "src", "code.cloudfoundry.org", "windows2016fs", "1803", "IMAGE_TAG")
 	tarballPath := filepath.Join(extractedTileDir, "releases", fmt.Sprintf("%s-%s.tgz", releaseName, releaseVersion))
 
-	err = a.releaseCreator.CreateRelease(imageName, releaseDir, tarballPath, imageTagPath, filepath.Join(releaseDir, "VERSION"))
+	err = a.releaseCreator.CreateRelease(releaseName, imageName, embeddedReleaseDir, tarballPath, imageTagPath, releaseVersion)
 	if err != nil {
 		return err
 	}
@@ -102,7 +122,7 @@ func (a Application) Run(inputTile, outputTile, workingDir string) error {
 		return err
 	}
 
-	err = removeAll(filepath.Join(extractedTileDir, "embed", "windowsfs-release"))
+	err = removeAll(embeddedReleaseDir)
 	if err != nil {
 		return err
 	}

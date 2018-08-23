@@ -2,6 +2,7 @@ package winfsinjector_test
 
 import (
 	"errors"
+	"os"
 	"path/filepath"
 
 	. "github.com/onsi/ginkgo"
@@ -29,12 +30,23 @@ var _ = Describe("application", func() {
 				return []byte("9.3.6"), nil
 			})
 
+			fakeEmbeddedDirectory := new(fakes.FileInfo)
+			fakeEmbeddedDirectory.IsDirReturns(true)
+			fakeEmbeddedDirectory.NameReturns("/path/to/working/dir/extracted-tile/embed/windowsfs-release")
+
+			winfsinjector.SetReadDir(func(string) ([]os.FileInfo, error) {
+				return []os.FileInfo{
+					fakeEmbeddedDirectory,
+				}, nil
+			})
+
 			app = winfsinjector.NewApplication(fakeReleaseCreator, fakeInjector, fakeZipper)
 		})
 
 		AfterEach(func() {
 			winfsinjector.ResetReadFile()
 			winfsinjector.ResetRemoveAll()
+			winfsinjector.ResetReadDir()
 		})
 
 		It("unzips the tile", func() {
@@ -53,12 +65,13 @@ var _ = Describe("application", func() {
 			Expect(err).NotTo(HaveOccurred())
 
 			Expect(fakeReleaseCreator.CreateReleaseCallCount()).To(Equal(1))
-			imageName, releaseDir, tarballPath, imageTagPath, versionDataPath := fakeReleaseCreator.CreateReleaseArgsForCall(0)
+			releaseName, imageName, releaseDir, tarballPath, imageTagPath, version := fakeReleaseCreator.CreateReleaseArgsForCall(0)
+			Expect(releaseName).To(Equal("windows1803fs"))
 			Expect(imageName).To(Equal("cloudfoundry/windows2016fs"))
 			Expect(releaseDir).To(Equal("/path/to/working/dir/extracted-tile/embed/windowsfs-release"))
 			Expect(tarballPath).To(Equal("/path/to/working/dir/extracted-tile/releases/windows1803fs-9.3.6.tgz"))
 			Expect(imageTagPath).To(Equal("/path/to/working/dir/extracted-tile/embed/windowsfs-release/src/code.cloudfoundry.org/windows2016fs/1803/IMAGE_TAG"))
-			Expect(versionDataPath).To(Equal("/path/to/working/dir/extracted-tile/embed/windowsfs-release/VERSION"))
+			Expect(version).To(Equal("9.3.6"))
 		})
 
 		It("injects the build windows release into the extracted tile", func() {
