@@ -181,13 +181,28 @@ func (a Application) determineImageTagPath(releaseName, releaseDir string) (stri
 	stemcellLine := matches[1]
 
 	var imageTagPath string
+	imageTagDirectory := filepath.Join(releaseDir, "src", "code.cloudfoundry.org", "windows2016fs")
 	switch stemcellLine {
 	case "2016":
 		// either windowsfs/IMAGE_TAG or windowsfs/1709/IMAGE_TAG
 
-		imageTagPath = ""
+		files, err := readDir(imageTagDirectory)
+		if err != nil {
+			return "", err
+		}
+
+		for _, f := range files {
+			if strings.Contains(f.Name(), "IMAGE_TAG") && f.IsDir() == false {
+				return filepath.Join(imageTagDirectory, "IMAGE_TAG"), nil
+			}
+			if strings.Contains(f.Name(), "1709") && f.IsDir() == true {
+				return filepath.Join(imageTagDirectory, "1709", "IMAGE_TAG"), nil
+			}
+		}
+
+		return "", errors.New("unable to find IMAGE_TAG or 1709/IMAGE_TAG in windows2016fs; please contact tile authors to fix")
 	default:
-		imageTagPath = filepath.Join(releaseDir, "src", "code.cloudfoundry.org", "windows2016fs", stemcellLine, "IMAGE_TAG")
+		return filepath.Join(imageTagDirectory, stemcellLine, "IMAGE_TAG"), nil
 	}
 
 	return imageTagPath, nil

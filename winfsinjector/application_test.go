@@ -51,7 +51,9 @@ var _ = Describe("application", func() {
 					fakeEmbeddedDirectory,
 				}, nil
 			})
+		})
 
+		JustBeforeEach(func() {
 			app = winfsinjector.NewApplication(fakeReleaseCreator, fakeInjector, fakeZipper)
 		})
 
@@ -132,6 +134,96 @@ var _ = Describe("application", func() {
 			zipDir, zipFile := fakeZipper.ZipArgsForCall(0)
 			Expect(zipDir).To(Equal(filepath.Join("/path/to/working/dir", "extracted-tile")))
 			Expect(zipFile).To(Equal("/path/to/output/tile"))
+		})
+
+		Context("when on a 1709 stemcell version", func() {
+			var (
+				fakeImageDirectoryContents *fakes.FileInfo
+			)
+			BeforeEach(func() {
+				readFileCallCount := 0
+				winfsinjector.SetReadFile(func(string) ([]byte, error) {
+					readFileCallCount++
+					switch readFileCallCount {
+					case 1:
+						// reading VERSION file
+						return []byte("9.3.6"), nil
+					case 2:
+						// reading config/final.yml
+						return []byte(`name: windows2016fs`), nil
+					default:
+						return nil, errors.New("called readFile more times than expected")
+
+					}
+				})
+
+				fakeImageDirectoryContents = new(fakes.FileInfo)
+				readDirCallCount := 0
+				winfsinjector.SetReadDir(func(string) ([]os.FileInfo, error) {
+					readDirCallCount++
+
+					switch readDirCallCount {
+					case 1:
+						// reading the embeddedReleaseDirectory
+						fakeEmbeddedDirectory := new(fakes.FileInfo)
+						fakeEmbeddedDirectory.IsDirReturns(true)
+						fakeEmbeddedDirectory.NameReturns("/path/to/working/dir/extracted-tile/embed/windowsfs-release")
+
+						return []os.FileInfo{
+							fakeEmbeddedDirectory,
+						}, nil
+					case 2:
+						return []os.FileInfo{
+							fakeImageDirectoryContents,
+						}, nil
+					default:
+						return nil, errors.New("called readDir more times than expected")
+					}
+				})
+			})
+
+			Context("when the windows2016fs has only IMAGE_TAG", func() {
+
+				BeforeEach(func() {
+					fakeImageDirectoryContents.NameReturns("/some/path/IMAGE_TAG")
+					fakeImageDirectoryContents.IsDirReturns(false)
+				})
+
+				It("uses IMAGE_TAG", func() {
+					err := app.Run("/path/to/input/tile", "/path/to/output/tile", "/path/to/working/dir")
+					Expect(err).NotTo(HaveOccurred())
+
+					Expect(fakeReleaseCreator.CreateReleaseCallCount()).To(Equal(1))
+					releaseName, imageName, releaseDir, tarballPath, imageTagPath, version := fakeReleaseCreator.CreateReleaseArgsForCall(0)
+					Expect(releaseName).To(Equal("windows2016fs"))
+					Expect(imageName).To(Equal("cloudfoundry/windows2016fs"))
+					Expect(releaseDir).To(Equal("/path/to/working/dir/extracted-tile/embed/windowsfs-release"))
+					Expect(tarballPath).To(Equal("/path/to/working/dir/extracted-tile/releases/windows2016fs-9.3.6.tgz"))
+					Expect(imageTagPath).To(Equal("/path/to/working/dir/extracted-tile/embed/windowsfs-release/src/code.cloudfoundry.org/windows2016fs/IMAGE_TAG"))
+					Expect(version).To(Equal("9.3.6"))
+				})
+			})
+
+			Context("when the windows2016fs has 1709/IMAGE_TAG", func() {
+				BeforeEach(func() {
+					fakeImageDirectoryContents.NameReturns("/some/path/1709")
+					fakeImageDirectoryContents.IsDirReturns(true)
+				})
+
+				It("uses 1709/IMAGE_TAG", func() {
+					err := app.Run("/path/to/input/tile", "/path/to/output/tile", "/path/to/working/dir")
+					Expect(err).NotTo(HaveOccurred())
+
+					Expect(fakeReleaseCreator.CreateReleaseCallCount()).To(Equal(1))
+					releaseName, imageName, releaseDir, tarballPath, imageTagPath, version := fakeReleaseCreator.CreateReleaseArgsForCall(0)
+					Expect(releaseName).To(Equal("windows2016fs"))
+					Expect(imageName).To(Equal("cloudfoundry/windows2016fs"))
+					Expect(releaseDir).To(Equal("/path/to/working/dir/extracted-tile/embed/windowsfs-release"))
+					Expect(tarballPath).To(Equal("/path/to/working/dir/extracted-tile/releases/windows2016fs-9.3.6.tgz"))
+					Expect(imageTagPath).To(Equal("/path/to/working/dir/extracted-tile/embed/windowsfs-release/src/code.cloudfoundry.org/windows2016fs/1709/IMAGE_TAG"))
+					Expect(version).To(Equal("9.3.6"))
+				})
+			})
 		})
 
 		Context("failure cases", func() {
