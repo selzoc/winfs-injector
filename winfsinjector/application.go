@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"regexp"
+	"runtime"
 	"strings"
 
 	yaml "gopkg.in/yaml.v2"
@@ -90,6 +92,22 @@ func (a Application) Run(inputTile, outputTile, workingDir string) error {
 	releaseVersion, err := a.extractReleaseVersion(embeddedReleaseDir)
 	if err != nil {
 		return err
+	}
+
+	if runtime.GOOS == "windows" {
+		cmd := exec.Command("git", "config", "core.filemode", "false")
+		cmd.Dir = embeddedReleaseDir
+		stdoutStderr, err := cmd.CombinedOutput()
+		if err != nil {
+			return fmt.Errorf("unable to fix file permissions for windows: %s, %s", stdoutStderr, err)
+		}
+
+		cmd = exec.Command("git", "submodule", "foreach", "git", "config", "core.filemode", "false")
+		cmd.Dir = embeddedReleaseDir
+		stdoutStderr, err = cmd.CombinedOutput()
+		if err != nil {
+			return fmt.Errorf("unable to fix file permissions for windows: %s, %s", stdoutStderr, err)
+		}
 	}
 
 	releaseName, err := a.extractReleaseName(embeddedReleaseDir)
