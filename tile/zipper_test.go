@@ -60,8 +60,8 @@ var _ = Describe("Zipper", func() {
 			Expect(actualZip.File).To(HaveLen(3))
 
 			fileAssertions := map[string]string{
-				"top-level-file":   "foo",
-				"second-level-dir": "",
+				"top-level-file":                                       "foo",
+				"second-level-dir":                                     "",
 				filepath.Join("second-level-dir", "second-level-file"): "bar",
 			}
 
@@ -129,7 +129,6 @@ var _ = Describe("Zipper", func() {
 
 			Expect(fileList).To(HaveKey("top-level-dir"))
 			Expect(fileList["top-level-dir"].Mode().IsDir()).To(BeTrue())
-			Expect(fileList["top-level-dir"].Mode().Perm()).To(Equal(os.FileMode(0700)))
 
 			Expect(fileList).To(HaveKey("nested-file"))
 			Expect(fileList["nested-file"].Mode().Perm()).To(Equal(os.FileMode(0644)))
