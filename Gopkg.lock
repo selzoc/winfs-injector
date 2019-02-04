@@ -339,14 +339,6 @@
   version = "v1.2.0"
 
 [[projects]]
-  branch = "master"
-  digest = "1:2a5888946cdbc8aa360fd43301f9fc7869d663f60d5eedae7d4e6e5e4f06f2bf"
-  name = "github.com/golang/snappy"
-  packages = ["."]
-  pruneopts = ""
-  revision = "2e65f85255dbc3072edf28d6b5b8efc472979f5a"
-
-[[projects]]
   digest = "1:e097a364f4e8d8d91b9b9eeafb992d3796a41fde3eb548c1a87eb9d9f60725cf"
   name = "github.com/googleapis/gax-go"
   packages = ["."]
@@ -419,13 +411,12 @@
   version = "v0.0.3"
 
 [[projects]]
-  branch = "pr-folder-permissions"
-  digest = "1:d67c8444ec1427985aa4acdd09b759f3392425758b17a4efc842a1b12583dcde"
+  digest = "1:e6cee0e684c4abef5358249d6f6673a154bea173ac4c3ad8014d1f891212a928"
   name = "github.com/mholt/archiver"
   packages = ["."]
   pruneopts = ""
-  revision = "7660ee8119610a6091b8e21d66c800c725344f78"
-  source = "https://github.com/heycait/archiver"
+  revision = "cdc68dd1f170b8dfc1a0d2231b5bb0967ed67006"
+  version = "v2.0"
 
 [[projects]]
   branch = "master"
@@ -511,17 +502,6 @@
   version = "v1.0.1"
 
 [[projects]]
-  digest = "1:b1df71d0b2287062b90c6b4c8d3c934440aa0d2eb201d03f22be0f045860b4aa"
-  name = "github.com/pierrec/lz4"
-  packages = [
-    ".",
-    "internal/xxh32",
-  ]
-  pruneopts = ""
-  revision = "635575b42742856941dbc767b44905bb9ba083f6"
-  version = "v2.0.7"
-
-[[projects]]
   branch = "master"
   digest = "1:969f3e82d5f3b6b7c570665ed667d52f20d992f314a841628e1940cd4f0701bd"
   name = "github.com/pivotal-cf/jhanda"
@@ -562,14 +542,6 @@
   ]
   pruneopts = ""
   revision = "fa338ed9e9ecbb0e9c2e6c7a0160d9fc9b0efbd9"
-
-[[projects]]
-  branch = "master"
-  digest = "1:5d5ea0c53c32b0465b910eb1d98b045c2f14c416880c54dd5356a1c6b4569041"
-  name = "github.com/xi2/xz"
-  packages = ["."]
-  pruneopts = ""
-  revision = "48954b6210f8d154cb5f8484d3a3e1f83489309e"
 
 [[projects]]
   digest = "1:8778190ba18941ba540ea3a065bfe3e6c4126ab16aa2f8a240076ef51af9ab75"

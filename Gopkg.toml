@@ -39,8 +39,7 @@
 
 [[constraint]]
   name = "github.com/mholt/archiver"
-  source = "https://github.com/heycait/archiver"
-  branch = "pr-folder-permissions"
+  version = "2.0.0"
 
 [[override]]
   name="github.com/cloudfoundry/bosh-cli"
