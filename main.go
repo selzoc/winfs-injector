@@ -21,14 +21,16 @@ const usageText = `winfs-injector injects the Windows 2016 root file system into
 Usage: winfs-injector
   --input-tile, -i   path to input tile (example: /path/to/input.pivotal)
   --output-tile, -o  path to output tile (example: /path/to/output.pivotal)
+  --registry, -r     path to docker registry (example: /path/to/registry, default: "https://registry.hub.docker.com")
   --help, -h         prints this usage information
 `
 
 func main() {
 	var arguments struct {
-		InputTile  string `short:"i" long:"input-tile"  description:"path to input tile (example: /path/to/input.pivotal)"   default:""`
-		OutputTile string `short:"o" long:"output-tile" description:"path to output tile (example: /path/to/output.pivotal)" default:""`
-		Help       bool   `short:"h" long:"help"        description:"prints this usage information"                             default:"false"`
+		InputTile  string `short:"i" long:"input-tile"`
+		OutputTile string `short:"o" long:"output-tile"`
+		Registry   string `short:"r" long:"registry" default:"https://registry.hub.docker.com"`
+		Help       bool   `short:"h" long:"help"`
 	}
 
 	_, err := jhanda.Parse(&arguments, os.Args[1:])
