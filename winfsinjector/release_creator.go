@@ -6,10 +6,10 @@ import (
 	"os"
 	"path/filepath"
 
-	"code.cloudfoundry.org/hydrator/hydrator"
 	"github.com/cloudfoundry/bosh-cli/cmd"
 	"github.com/cloudfoundry/bosh-cli/ui"
 	"github.com/cloudfoundry/bosh-utils/logger"
+	"github.com/cloudfoundry/hydrator/imagefetcher"
 )
 
 type ReleaseCreator struct{}
@@ -25,7 +25,7 @@ func (rc ReleaseCreator) CreateRelease(releaseName, imageName, releaseDir, tarba
 	releaseBlob := filepath.Join(releaseDir, "blobs", releaseName)
 
 	// TODO: Hydrator accepts a registry argument.
-	h := hydrator.New(hLogger, releaseBlob, imageName, imageTag, false)
+	h := imagefetcher.New(hLogger, releaseBlob, imageName, imageTag, false)
 	if err := h.Run(); err != nil {
 		return err
 	}

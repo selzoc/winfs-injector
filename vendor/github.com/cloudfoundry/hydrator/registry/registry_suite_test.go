@@ -1,4 +1,4 @@
-package metadata_test
+package registry_test
 
 import (
 	. "github.com/onsi/ginkgo"
@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func TestOciMetadata(t *testing.T) {
+func TestRegistry(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "OciMetadata Suite")
+	RunSpecs(t, "Registry Suite")
 }

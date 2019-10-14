@@ -6,7 +6,7 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"github.com/pivotal-cf/p-windows-runtime-2016/windowsfs-release/src/github.com/onsi/gomega/gexec"
+	"github.com/onsi/gomega/gexec"
 )
 
 var _ = Describe("acceptance", func() {
