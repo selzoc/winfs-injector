@@ -20,15 +20,20 @@ type ImageFetcher struct {
 	outDir    string
 	imageName string
 	imageTag  string
+	registry  string
 	noTarball bool
 }
 
-func New(logger *log.Logger, outDir, imageName, imageTag string, noTarball bool) *ImageFetcher {
+func New(logger *log.Logger, outDir, imageName, imageTag, registry string, noTarball bool) *ImageFetcher {
+	if registry == "" {
+		registry = "https://registry.hub.docker.com"
+	}
 	return &ImageFetcher{
 		logger:    logger,
 		outDir:    outDir,
 		imageName: imageName,
 		imageTag:  imageTag,
+		registry:  registry,
 		noTarball: noTarball,
 	}
 }
@@ -57,12 +62,13 @@ func (i *ImageFetcher) Run() error {
 		return err
 	}
 
-	r := registry.New("https://auth.docker.io", "https://registry.hub.docker.com", i.imageName, i.imageTag)
+	r := registry.New("https://auth.docker.io", i.registry, i.imageName, i.imageTag)
 	d := downloader.New(i.logger, blobDownloadDir, r)
 
+	i.logger.Printf("\nDownloading image: %s with tag: %s from registry: %s\n", i.imageName, i.imageTag, i.registry)
 	layers, diffIds, err := d.Run()
 	if err != nil {
-		return err
+		return fmt.Errorf("Failed downloading image: %s with tag: %s from registry: %s - %s", i.imageName, i.imageTag, i.registry, err)
 	}
 
 	handler := directory.NewHandler(imageDownloadDir)
