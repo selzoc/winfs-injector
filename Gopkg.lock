@@ -27,17 +27,16 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:5604d8bb9936d78b0dae8020daafa1dca8910d473515434090c4d474d111ecee"
+  digest = "1:eb3dfd925ddab2285c1893678079695a697549d36fed6fc7a34890b2f7e9e165"
   name = "code.cloudfoundry.org/hydrator"
   packages = [
     "compress",
     "downloader",
-    "hydrator",
-    "oci-metadata",
+    "oci-directory",
     "registry",
   ]
   pruneopts = ""
-  revision = "6b2757c7f6f0391742520ff48e537351237cde42"
+  revision = "5c3057edaba5737446f49244264935b1120468a3"
 
 [[projects]]
   branch = "master"
@@ -262,6 +261,14 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:2cdb0001a44d07569ae6f29d6b012e45335b05277cd42ec03ce20e45a90ca5bb"
+  name = "github.com/cloudfoundry/hydrator"
+  packages = ["imagefetcher"]
+  pruneopts = ""
+  revision = "e84d7ccac14bd390444489fb8832df298f00d0c9"
+
+[[projects]]
+  branch = "master"
   digest = "1:ad0ef7941d901d624f0db1f5ea0333ce4884280696a3b24bc3ca3d4856e412b4"
   name = "github.com/cloudfoundry/socks5-proxy"
   packages = ["."]
@@ -467,6 +474,8 @@
   packages = [
     ".",
     "format",
+    "gbytes",
+    "gexec",
     "internal/assertion",
     "internal/asyncassertion",
     "internal/oraclematcher",
@@ -759,14 +768,15 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
-    "code.cloudfoundry.org/hydrator/hydrator",
     "github.com/cloudfoundry/bosh-cli/cmd",
     "github.com/cloudfoundry/bosh-cli/ui",
     "github.com/cloudfoundry/bosh-utils/logger",
+    "github.com/cloudfoundry/hydrator/imagefetcher",
     "github.com/jhoonb/archivex",
     "github.com/mholt/archiver",
     "github.com/onsi/ginkgo",
     "github.com/onsi/gomega",
+    "github.com/onsi/gomega/gexec",
     "github.com/pivotal-cf/jhanda",
     "gopkg.in/yaml.v2",
   ]

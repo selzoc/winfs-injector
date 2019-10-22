@@ -44,7 +44,7 @@ type zipper interface {
 //go:generate counterfeiter -o ./fakes/release_creator.go --fake-name ReleaseCreator . releaseCreator
 
 type releaseCreator interface {
-	CreateRelease(releaseName, imageName, releaseDir, tarballPath, imageTagPath, version string) error
+	CreateRelease(releaseName, imageName, releaseDir, tarballPath, imageTagPath, registry, version string) error
 }
 
 func NewApplication(releaseCreator releaseCreator, injector injector, zipper zipper) Application {
@@ -55,7 +55,7 @@ func NewApplication(releaseCreator releaseCreator, injector injector, zipper zip
 	}
 }
 
-func (a Application) Run(inputTile, outputTile, workingDir string) error {
+func (a Application) Run(inputTile, outputTile, registry, workingDir string) error {
 	if inputTile == "" {
 		return errors.New("--input-tile is required")
 	}
@@ -123,7 +123,7 @@ func (a Application) Run(inputTile, outputTile, workingDir string) error {
 
 	tarballPath := filepath.Join(extractedTileDir, "releases", fmt.Sprintf("%s-%s.tgz", releaseName, releaseVersion))
 
-	err = a.releaseCreator.CreateRelease(releaseName, imageName, embeddedReleaseDir, tarballPath, imageTagPath, releaseVersion)
+	err = a.releaseCreator.CreateRelease(releaseName, imageName, embeddedReleaseDir, tarballPath, imageTagPath, registry, releaseVersion)
 	if err != nil {
 		return err
 	}

@@ -2,27 +2,15 @@
 package fakes
 
 import (
-	"sync"
+	sync "sync"
 )
 
 type Zipper struct {
-	ZipStub        func(dir, zipFile string) error
-	zipMutex       sync.RWMutex
-	zipArgsForCall []struct {
-		dir     string
-		zipFile string
-	}
-	zipReturns struct {
-		result1 error
-	}
-	zipReturnsOnCall map[int]struct {
-		result1 error
-	}
-	UnzipStub        func(zipFile, dest string) error
+	UnzipStub        func(string, string) error
 	unzipMutex       sync.RWMutex
 	unzipArgsForCall []struct {
-		zipFile string
-		dest    string
+		arg1 string
+		arg2 string
 	}
 	unzipReturns struct {
 		result1 error
@@ -30,75 +18,39 @@ type Zipper struct {
 	unzipReturnsOnCall map[int]struct {
 		result1 error
 	}
+	ZipStub        func(string, string) error
+	zipMutex       sync.RWMutex
+	zipArgsForCall []struct {
+		arg1 string
+		arg2 string
+	}
+	zipReturns struct {
+		result1 error
+	}
+	zipReturnsOnCall map[int]struct {
+		result1 error
+	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
 }
 
-func (fake *Zipper) Zip(dir string, zipFile string) error {
-	fake.zipMutex.Lock()
-	ret, specificReturn := fake.zipReturnsOnCall[len(fake.zipArgsForCall)]
-	fake.zipArgsForCall = append(fake.zipArgsForCall, struct {
-		dir     string
-		zipFile string
-	}{dir, zipFile})
-	fake.recordInvocation("Zip", []interface{}{dir, zipFile})
-	fake.zipMutex.Unlock()
-	if fake.ZipStub != nil {
-		return fake.ZipStub(dir, zipFile)
-	}
-	if specificReturn {
-		return ret.result1
-	}
-	return fake.zipReturns.result1
-}
-
-func (fake *Zipper) ZipCallCount() int {
-	fake.zipMutex.RLock()
-	defer fake.zipMutex.RUnlock()
-	return len(fake.zipArgsForCall)
-}
-
-func (fake *Zipper) ZipArgsForCall(i int) (string, string) {
-	fake.zipMutex.RLock()
-	defer fake.zipMutex.RUnlock()
-	return fake.zipArgsForCall[i].dir, fake.zipArgsForCall[i].zipFile
-}
-
-func (fake *Zipper) ZipReturns(result1 error) {
-	fake.ZipStub = nil
-	fake.zipReturns = struct {
-		result1 error
-	}{result1}
-}
-
-func (fake *Zipper) ZipReturnsOnCall(i int, result1 error) {
-	fake.ZipStub = nil
-	if fake.zipReturnsOnCall == nil {
-		fake.zipReturnsOnCall = make(map[int]struct {
-			result1 error
-		})
-	}
-	fake.zipReturnsOnCall[i] = struct {
-		result1 error
-	}{result1}
-}
-
-func (fake *Zipper) Unzip(zipFile string, dest string) error {
+func (fake *Zipper) Unzip(arg1 string, arg2 string) error {
 	fake.unzipMutex.Lock()
 	ret, specificReturn := fake.unzipReturnsOnCall[len(fake.unzipArgsForCall)]
 	fake.unzipArgsForCall = append(fake.unzipArgsForCall, struct {
-		zipFile string
-		dest    string
-	}{zipFile, dest})
-	fake.recordInvocation("Unzip", []interface{}{zipFile, dest})
+		arg1 string
+		arg2 string
+	}{arg1, arg2})
+	fake.recordInvocation("Unzip", []interface{}{arg1, arg2})
 	fake.unzipMutex.Unlock()
 	if fake.UnzipStub != nil {
-		return fake.UnzipStub(zipFile, dest)
+		return fake.UnzipStub(arg1, arg2)
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	return fake.unzipReturns.result1
+	fakeReturns := fake.unzipReturns
+	return fakeReturns.result1
 }
 
 func (fake *Zipper) UnzipCallCount() int {
@@ -107,13 +59,22 @@ func (fake *Zipper) UnzipCallCount() int {
 	return len(fake.unzipArgsForCall)
 }
 
+func (fake *Zipper) UnzipCalls(stub func(string, string) error) {
+	fake.unzipMutex.Lock()
+	defer fake.unzipMutex.Unlock()
+	fake.UnzipStub = stub
+}
+
 func (fake *Zipper) UnzipArgsForCall(i int) (string, string) {
 	fake.unzipMutex.RLock()
 	defer fake.unzipMutex.RUnlock()
-	return fake.unzipArgsForCall[i].zipFile, fake.unzipArgsForCall[i].dest
+	argsForCall := fake.unzipArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
 }
 
 func (fake *Zipper) UnzipReturns(result1 error) {
+	fake.unzipMutex.Lock()
+	defer fake.unzipMutex.Unlock()
 	fake.UnzipStub = nil
 	fake.unzipReturns = struct {
 		result1 error
@@ -121,6 +82,8 @@ func (fake *Zipper) UnzipReturns(result1 error) {
 }
 
 func (fake *Zipper) UnzipReturnsOnCall(i int, result1 error) {
+	fake.unzipMutex.Lock()
+	defer fake.unzipMutex.Unlock()
 	fake.UnzipStub = nil
 	if fake.unzipReturnsOnCall == nil {
 		fake.unzipReturnsOnCall = make(map[int]struct {
@@ -132,13 +95,74 @@ func (fake *Zipper) UnzipReturnsOnCall(i int, result1 error) {
 	}{result1}
 }
 
+func (fake *Zipper) Zip(arg1 string, arg2 string) error {
+	fake.zipMutex.Lock()
+	ret, specificReturn := fake.zipReturnsOnCall[len(fake.zipArgsForCall)]
+	fake.zipArgsForCall = append(fake.zipArgsForCall, struct {
+		arg1 string
+		arg2 string
+	}{arg1, arg2})
+	fake.recordInvocation("Zip", []interface{}{arg1, arg2})
+	fake.zipMutex.Unlock()
+	if fake.ZipStub != nil {
+		return fake.ZipStub(arg1, arg2)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	fakeReturns := fake.zipReturns
+	return fakeReturns.result1
+}
+
+func (fake *Zipper) ZipCallCount() int {
+	fake.zipMutex.RLock()
+	defer fake.zipMutex.RUnlock()
+	return len(fake.zipArgsForCall)
+}
+
+func (fake *Zipper) ZipCalls(stub func(string, string) error) {
+	fake.zipMutex.Lock()
+	defer fake.zipMutex.Unlock()
+	fake.ZipStub = stub
+}
+
+func (fake *Zipper) ZipArgsForCall(i int) (string, string) {
+	fake.zipMutex.RLock()
+	defer fake.zipMutex.RUnlock()
+	argsForCall := fake.zipArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
+}
+
+func (fake *Zipper) ZipReturns(result1 error) {
+	fake.zipMutex.Lock()
+	defer fake.zipMutex.Unlock()
+	fake.ZipStub = nil
+	fake.zipReturns = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *Zipper) ZipReturnsOnCall(i int, result1 error) {
+	fake.zipMutex.Lock()
+	defer fake.zipMutex.Unlock()
+	fake.ZipStub = nil
+	if fake.zipReturnsOnCall == nil {
+		fake.zipReturnsOnCall = make(map[int]struct {
+			result1 error
+		})
+	}
+	fake.zipReturnsOnCall[i] = struct {
+		result1 error
+	}{result1}
+}
+
 func (fake *Zipper) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
-	fake.zipMutex.RLock()
-	defer fake.zipMutex.RUnlock()
 	fake.unzipMutex.RLock()
 	defer fake.unzipMutex.RUnlock()
+	fake.zipMutex.RLock()
+	defer fake.zipMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}
 	for key, value := range fake.invocations {
 		copiedInvocations[key] = value

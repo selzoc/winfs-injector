@@ -2,17 +2,17 @@
 package fakes
 
 import (
-	"sync"
+	sync "sync"
 )
 
 type Injector struct {
-	AddReleaseToMetadataStub        func(releasePath, releaseName, releaseVersion, extractedTileDir string) error
+	AddReleaseToMetadataStub        func(string, string, string, string) error
 	addReleaseToMetadataMutex       sync.RWMutex
 	addReleaseToMetadataArgsForCall []struct {
-		releasePath      string
-		releaseName      string
-		releaseVersion   string
-		extractedTileDir string
+		arg1 string
+		arg2 string
+		arg3 string
+		arg4 string
 	}
 	addReleaseToMetadataReturns struct {
 		result1 error
@@ -24,24 +24,25 @@ type Injector struct {
 	invocationsMutex sync.RWMutex
 }
 
-func (fake *Injector) AddReleaseToMetadata(releasePath string, releaseName string, releaseVersion string, extractedTileDir string) error {
+func (fake *Injector) AddReleaseToMetadata(arg1 string, arg2 string, arg3 string, arg4 string) error {
 	fake.addReleaseToMetadataMutex.Lock()
 	ret, specificReturn := fake.addReleaseToMetadataReturnsOnCall[len(fake.addReleaseToMetadataArgsForCall)]
 	fake.addReleaseToMetadataArgsForCall = append(fake.addReleaseToMetadataArgsForCall, struct {
-		releasePath      string
-		releaseName      string
-		releaseVersion   string
-		extractedTileDir string
-	}{releasePath, releaseName, releaseVersion, extractedTileDir})
-	fake.recordInvocation("AddReleaseToMetadata", []interface{}{releasePath, releaseName, releaseVersion, extractedTileDir})
+		arg1 string
+		arg2 string
+		arg3 string
+		arg4 string
+	}{arg1, arg2, arg3, arg4})
+	fake.recordInvocation("AddReleaseToMetadata", []interface{}{arg1, arg2, arg3, arg4})
 	fake.addReleaseToMetadataMutex.Unlock()
 	if fake.AddReleaseToMetadataStub != nil {
-		return fake.AddReleaseToMetadataStub(releasePath, releaseName, releaseVersion, extractedTileDir)
+		return fake.AddReleaseToMetadataStub(arg1, arg2, arg3, arg4)
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	return fake.addReleaseToMetadataReturns.result1
+	fakeReturns := fake.addReleaseToMetadataReturns
+	return fakeReturns.result1
 }
 
 func (fake *Injector) AddReleaseToMetadataCallCount() int {
@@ -50,13 +51,22 @@ func (fake *Injector) AddReleaseToMetadataCallCount() int {
 	return len(fake.addReleaseToMetadataArgsForCall)
 }
 
+func (fake *Injector) AddReleaseToMetadataCalls(stub func(string, string, string, string) error) {
+	fake.addReleaseToMetadataMutex.Lock()
+	defer fake.addReleaseToMetadataMutex.Unlock()
+	fake.AddReleaseToMetadataStub = stub
+}
+
 func (fake *Injector) AddReleaseToMetadataArgsForCall(i int) (string, string, string, string) {
 	fake.addReleaseToMetadataMutex.RLock()
 	defer fake.addReleaseToMetadataMutex.RUnlock()
-	return fake.addReleaseToMetadataArgsForCall[i].releasePath, fake.addReleaseToMetadataArgsForCall[i].releaseName, fake.addReleaseToMetadataArgsForCall[i].releaseVersion, fake.addReleaseToMetadataArgsForCall[i].extractedTileDir
+	argsForCall := fake.addReleaseToMetadataArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3, argsForCall.arg4
 }
 
 func (fake *Injector) AddReleaseToMetadataReturns(result1 error) {
+	fake.addReleaseToMetadataMutex.Lock()
+	defer fake.addReleaseToMetadataMutex.Unlock()
 	fake.AddReleaseToMetadataStub = nil
 	fake.addReleaseToMetadataReturns = struct {
 		result1 error
@@ -64,6 +74,8 @@ func (fake *Injector) AddReleaseToMetadataReturns(result1 error) {
 }
 
 func (fake *Injector) AddReleaseToMetadataReturnsOnCall(i int, result1 error) {
+	fake.addReleaseToMetadataMutex.Lock()
+	defer fake.addReleaseToMetadataMutex.Unlock()
 	fake.AddReleaseToMetadataStub = nil
 	if fake.addReleaseToMetadataReturnsOnCall == nil {
 		fake.addReleaseToMetadataReturnsOnCall = make(map[int]struct {

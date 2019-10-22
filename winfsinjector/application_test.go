@@ -18,6 +18,11 @@ var _ = Describe("application", func() {
 			fakeInjector       *fakes.Injector
 			fakeZipper         *fakes.Zipper
 
+			inputTile  string
+			outputTile string
+			registry   string
+			workingDir string
+
 			app winfsinjector.Application
 		)
 
@@ -25,6 +30,11 @@ var _ = Describe("application", func() {
 			fakeReleaseCreator = new(fakes.ReleaseCreator)
 			fakeInjector = new(fakes.Injector)
 			fakeZipper = new(fakes.Zipper)
+
+			inputTile = "/path/to/input/tile"
+			outputTile = "/path/to/output/tile"
+			registry = "/path/to/docker/registry"
+			workingDir = "/path/to/working/dir"
 
 			readFileCallCount := 0
 			winfsinjector.SetReadFile(func(string) ([]byte, error) {
@@ -51,9 +61,7 @@ var _ = Describe("application", func() {
 					fakeEmbeddedDirectory,
 				}, nil
 			})
-		})
 
-		JustBeforeEach(func() {
 			app = winfsinjector.NewApplication(fakeReleaseCreator, fakeInjector, fakeZipper)
 		})
 
@@ -64,7 +72,7 @@ var _ = Describe("application", func() {
 		})
 
 		It("unzips the tile", func() {
-			err := app.Run("/path/to/input/tile", "/path/to/output/tile", "/path/to/working/dir")
+			err := app.Run(inputTile, outputTile, registry, workingDir)
 			Expect(err).NotTo(HaveOccurred())
 
 			Expect(fakeZipper.UnzipCallCount()).To(Equal(1))
@@ -75,21 +83,23 @@ var _ = Describe("application", func() {
 		})
 
 		It("creates the release", func() {
-			err := app.Run("/path/to/input/tile", "/path/to/output/tile", "/path/to/working/dir")
+			err := app.Run(inputTile, outputTile, registry, workingDir)
 			Expect(err).NotTo(HaveOccurred())
 
 			Expect(fakeReleaseCreator.CreateReleaseCallCount()).To(Equal(1))
-			releaseName, imageName, releaseDir, tarballPath, imageTagPath, version := fakeReleaseCreator.CreateReleaseArgsForCall(0)
+
+			releaseName, imageName, releaseDir, tarballPath, imageTagPath, registry, version := fakeReleaseCreator.CreateReleaseArgsForCall(0)
 			Expect(releaseName).To(Equal("windows1803fs"))
 			Expect(imageName).To(Equal("cloudfoundry/windows2016fs"))
 			Expect(releaseDir).To(Equal("/path/to/working/dir/extracted-tile/embed/windowsfs-release"))
 			Expect(tarballPath).To(Equal("/path/to/working/dir/extracted-tile/releases/windows1803fs-9.3.6.tgz"))
 			Expect(imageTagPath).To(Equal("/path/to/working/dir/extracted-tile/embed/windowsfs-release/src/code.cloudfoundry.org/windows2016fs/1803/IMAGE_TAG"))
+			Expect(registry).To(Equal("/path/to/docker/registry"))
 			Expect(version).To(Equal("9.3.6"))
 		})
 
 		It("injects the build windows release into the extracted tile", func() {
-			err := app.Run("/path/to/input/tile", "/path/to/output/tile", "/path/to/working/dir")
+			err := app.Run(inputTile, outputTile, registry, workingDir)
 			Expect(err).NotTo(HaveOccurred())
 
 			Expect(fakeReleaseCreator.CreateReleaseCallCount()).To(Equal(1))
@@ -115,7 +125,7 @@ var _ = Describe("application", func() {
 				return nil
 			})
 
-			err := app.Run("/path/to/input/tile", "/path/to/output/tile", "/path/to/working/dir")
+			err := app.Run(inputTile, outputTile, registry, workingDir)
 			Expect(err).NotTo(HaveOccurred())
 
 			Expect(removeAllCallCount).To(Equal(1))
@@ -123,7 +133,7 @@ var _ = Describe("application", func() {
 		})
 
 		It("zips up the injected tile dir", func() {
-			err := app.Run("/path/to/input/tile", "/path/to/output/tile", "/path/to/working/dir")
+			err := app.Run(inputTile, outputTile, registry, workingDir)
 			Expect(err).NotTo(HaveOccurred())
 
 			Expect(fakeReleaseCreator.CreateReleaseCallCount()).To(Equal(1))
@@ -183,24 +193,18 @@ var _ = Describe("application", func() {
 			})
 
 			Context("when the windows2016fs has only IMAGE_TAG", func() {
-
 				BeforeEach(func() {
 					fakeImageDirectoryContents.NameReturns("IMAGE_TAG")
 					fakeImageDirectoryContents.IsDirReturns(false)
 				})
 
 				It("uses IMAGE_TAG", func() {
-					err := app.Run("/path/to/input/tile", "/path/to/output/tile", "/path/to/working/dir")
+					err := app.Run(inputTile, outputTile, registry, workingDir)
 					Expect(err).NotTo(HaveOccurred())
 
 					Expect(fakeReleaseCreator.CreateReleaseCallCount()).To(Equal(1))
-					releaseName, imageName, releaseDir, tarballPath, imageTagPath, version := fakeReleaseCreator.CreateReleaseArgsForCall(0)
-					Expect(releaseName).To(Equal("windows2016fs"))
-					Expect(imageName).To(Equal("cloudfoundry/windows2016fs"))
-					Expect(releaseDir).To(Equal("/path/to/working/dir/extracted-tile/embed/windowsfs-release"))
-					Expect(tarballPath).To(Equal("/path/to/working/dir/extracted-tile/releases/windows2016fs-9.3.6.tgz"))
+					_, _, _, _, imageTagPath, _, _ := fakeReleaseCreator.CreateReleaseArgsForCall(0)
 					Expect(imageTagPath).To(Equal("/path/to/working/dir/extracted-tile/embed/windowsfs-release/src/code.cloudfoundry.org/windows2016fs/IMAGE_TAG"))
-					Expect(version).To(Equal("9.3.6"))
 				})
 			})
 
@@ -211,79 +215,83 @@ var _ = Describe("application", func() {
 				})
 
 				It("uses 1709/IMAGE_TAG", func() {
-					err := app.Run("/path/to/input/tile", "/path/to/output/tile", "/path/to/working/dir")
+					err := app.Run(inputTile, outputTile, registry, workingDir)
 					Expect(err).NotTo(HaveOccurred())
 
 					Expect(fakeReleaseCreator.CreateReleaseCallCount()).To(Equal(1))
-					releaseName, imageName, releaseDir, tarballPath, imageTagPath, version := fakeReleaseCreator.CreateReleaseArgsForCall(0)
-					Expect(releaseName).To(Equal("windows2016fs"))
-					Expect(imageName).To(Equal("cloudfoundry/windows2016fs"))
-					Expect(releaseDir).To(Equal("/path/to/working/dir/extracted-tile/embed/windowsfs-release"))
-					Expect(tarballPath).To(Equal("/path/to/working/dir/extracted-tile/releases/windows2016fs-9.3.6.tgz"))
+					_, _, _, _, imageTagPath, _, _ := fakeReleaseCreator.CreateReleaseArgsForCall(0)
 					Expect(imageTagPath).To(Equal("/path/to/working/dir/extracted-tile/embed/windowsfs-release/src/code.cloudfoundry.org/windows2016fs/1709/IMAGE_TAG"))
-					Expect(version).To(Equal("9.3.6"))
 				})
 			})
 		})
 
-		Context("failure cases", func() {
-			Context("when the zipper fails to unzip the tile", func() {
-				It("returns the error", func() {
-					fakeZipper.UnzipReturns(errors.New("some-error"))
-					err := app.Run("/path/to/input/tile", "/path/to/output/tile", "/path/to/working/dir")
-					Expect(err).To(MatchError("some-error"))
+		Context("when the zipper fails to unzip the tile", func() {
+			BeforeEach(func() {
+				fakeZipper.UnzipReturns(errors.New("some-error"))
+			})
+			It("returns the error", func() {
+				err := app.Run(inputTile, outputTile, registry, workingDir)
+				Expect(err).To(MatchError("some-error"))
+			})
+		})
+
+		Context("when the injector fails to copy the release into the tile", func() {
+			BeforeEach(func() {
+				fakeInjector.AddReleaseToMetadataReturns(errors.New("some-error"))
+			})
+
+			It("returns the error", func() {
+				err := app.Run(inputTile, outputTile, registry, workingDir)
+				Expect(err).To(MatchError("some-error"))
+			})
+		})
+
+		Context("when the release creator fails", func() {
+			BeforeEach(func() {
+				fakeReleaseCreator.CreateReleaseReturns(errors.New("some-error"))
+			})
+
+			It("returns the error", func() {
+				err := app.Run(inputTile, outputTile, registry, workingDir)
+				Expect(err).To(MatchError("some-error"))
+			})
+		})
+
+		Context("when removing the windows2016fs-release dir from the embed directory fails", func() {
+			BeforeEach(func() {
+				winfsinjector.SetRemoveAll(func(path string) error {
+					return errors.New("remove all failed")
 				})
 			})
 
-			Context("when the injector fails to copy the release into the tile", func() {
-				It("returns the error", func() {
-					fakeInjector.AddReleaseToMetadataReturns(errors.New("some-error"))
-					err := app.Run("/path/to/input/tile", "/path/to/output/tile", "/path/to/working/dir")
-					Expect(err).To(MatchError("some-error"))
-				})
+			It("returns an error", func() {
+				err := app.Run(inputTile, outputTile, registry, workingDir)
+				Expect(err).To(MatchError("remove all failed"))
+			})
+		})
+
+		Context("when zipping the injected tile dir fails", func() {
+			BeforeEach(func() {
+				fakeZipper.ZipReturns(errors.New("some-error"))
 			})
 
-			Context("when the release creator fails", func() {
-				It("returns the error", func() {
-					fakeReleaseCreator.CreateReleaseReturns(errors.New("some-error"))
-
-					err := app.Run("/path/to/input/tile", "/path/to/output/tile", "/path/to/working/dir")
-					Expect(err).To(MatchError("some-error"))
-				})
+			It("returns the error", func() {
+				err := app.Run(inputTile, outputTile, registry, workingDir)
+				Expect(err).To(MatchError("some-error"))
 			})
+		})
 
-			Context("when removing the windows2016fs-release dir from the embed directory fails", func() {
-				It("returns an error", func() {
-					winfsinjector.SetRemoveAll(func(path string) error {
-						return errors.New("remove all failed")
-					})
-
-					err := app.Run("/path/to/input/tile", "/path/to/output/tile", "/path/to/working/dir")
-					Expect(err).To(MatchError("remove all failed"))
-				})
+		Context("when input tile is not provided", func() {
+			It("returns an error", func() {
+				err := app.Run("", outputTile, registry, workingDir)
+				Expect(err).To(MatchError("--input-tile is required"))
 			})
+		})
 
-			Context("when zipping the injected tile dir fails", func() {
-				It("returns the error", func() {
-					fakeZipper.ZipReturns(errors.New("some-error"))
-
-					err := app.Run("/path/to/input/tile", "/path/to/output/tile", "/path/to/working/dir")
-					Expect(err).To(MatchError("some-error"))
-				})
-			})
-
-			Context("when input tile is not provided", func() {
-				It("returns an error", func() {
-					err := app.Run("", "/path/to/output/tile", "/path/to/working/dir")
-					Expect(err).To(MatchError("--input-tile is required"))
-				})
-			})
-
-			Context("when output tile is not provided", func() {
-				It("returns an error", func() {
-					err := app.Run("/path/to/input/tile", "", "/path/to/working/dir")
-					Expect(err).To(MatchError("--output-tile is required"))
-				})
+		Context("when output tile is not provided", func() {
+			It("returns an error", func() {
+				err := app.Run(inputTile, "", registry, workingDir)
+				Expect(err).To(MatchError("--output-tile is required"))
 			})
 		})
 	})
