@@ -27,16 +27,17 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:eb3dfd925ddab2285c1893678079695a697549d36fed6fc7a34890b2f7e9e165"
+  digest = "1:719e4b48881ca8d2386fecf02748b86f30b4a6db30225ee6a1842c6e9dfcf422"
   name = "code.cloudfoundry.org/hydrator"
   packages = [
     "compress",
     "downloader",
+    "imagefetcher",
     "oci-directory",
     "registry",
   ]
   pruneopts = ""
-  revision = "5c3057edaba5737446f49244264935b1120468a3"
+  revision = "919ca7133daa42bf65b99c0af5f67ccac0691ae4"
 
 [[projects]]
   branch = "master"
@@ -258,14 +259,6 @@
   packages = ["."]
   pruneopts = ""
   revision = "54f73bdb8a8e85a6611d3d29ab9bbf98c2a060d7"
-
-[[projects]]
-  branch = "master"
-  digest = "1:2cdb0001a44d07569ae6f29d6b012e45335b05277cd42ec03ce20e45a90ca5bb"
-  name = "github.com/cloudfoundry/hydrator"
-  packages = ["imagefetcher"]
-  pruneopts = ""
-  revision = "e84d7ccac14bd390444489fb8832df298f00d0c9"
 
 [[projects]]
   branch = "master"
@@ -768,10 +761,10 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
+    "code.cloudfoundry.org/hydrator/imagefetcher",
     "github.com/cloudfoundry/bosh-cli/cmd",
     "github.com/cloudfoundry/bosh-cli/ui",
     "github.com/cloudfoundry/bosh-utils/logger",
-    "github.com/cloudfoundry/hydrator/imagefetcher",
     "github.com/jhoonb/archivex",
     "github.com/mholt/archiver",
     "github.com/onsi/ginkgo",
