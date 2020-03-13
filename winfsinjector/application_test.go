@@ -36,19 +36,23 @@ var _ = Describe("application", func() {
 			registry = "/path/to/docker/registry"
 			workingDir = "/path/to/working/dir"
 
-			readFileCallCount := 0
-			winfsinjector.SetReadFile(func(string) ([]byte, error) {
-				readFileCallCount++
-				switch readFileCallCount {
-				case 1:
+			winfsinjector.SetReadFile(func(path string) ([]byte, error) {
+				switch filepath.Base(path) {
+				case "VERSION":
 					// reading VERSION file
 					return []byte("9.3.6"), nil
-				case 2:
+				case "blobs.yml":
+					// reading config/blobs.yml
+					return []byte(`---
+windows2019fs/windows2016fs-2019.0.43.tgz:
+  size: 3333333333
+  sha: abcdefg1234
+`), nil
+				case "final.yml":
 					// reading config/final.yml
-					return []byte(`name: windows1803fs`), nil
+					return []byte(`name: windows2019fs`), nil
 				default:
-					return nil, errors.New("called readFile more times than expected")
-
+					return nil, errors.New("readFile called for unexpected input: " + path)
 				}
 			})
 
@@ -88,12 +92,12 @@ var _ = Describe("application", func() {
 
 			Expect(fakeReleaseCreator.CreateReleaseCallCount()).To(Equal(1))
 
-			releaseName, imageName, releaseDir, tarballPath, imageTagPath, registry, version := fakeReleaseCreator.CreateReleaseArgsForCall(0)
-			Expect(releaseName).To(Equal("windows1803fs"))
+			releaseName, imageName, releaseDir, tarballPath, imageTag, registry, version := fakeReleaseCreator.CreateReleaseArgsForCall(0)
+			Expect(releaseName).To(Equal("windows2019fs"))
 			Expect(imageName).To(Equal("cloudfoundry/windows2016fs"))
 			Expect(releaseDir).To(Equal("/path/to/working/dir/extracted-tile/embed/windowsfs-release"))
-			Expect(tarballPath).To(Equal("/path/to/working/dir/extracted-tile/releases/windows1803fs-9.3.6.tgz"))
-			Expect(imageTagPath).To(Equal("/path/to/working/dir/extracted-tile/embed/windowsfs-release/src/code.cloudfoundry.org/windows2016fs/1803/IMAGE_TAG"))
+			Expect(tarballPath).To(Equal("/path/to/working/dir/extracted-tile/releases/windows2019fs-9.3.6.tgz"))
+			Expect(imageTag).To(Equal("2019.0.43"))
 			Expect(registry).To(Equal("/path/to/docker/registry"))
 			Expect(version).To(Equal("9.3.6"))
 		})
@@ -107,8 +111,8 @@ var _ = Describe("application", func() {
 
 			Expect(fakeInjector.AddReleaseToMetadataCallCount()).To(Equal(1))
 			releasePath, releaseName, releaseVersion, tileDir := fakeInjector.AddReleaseToMetadataArgsForCall(0)
-			Expect(releasePath).To(Equal("/path/to/working/dir/extracted-tile/releases/windows1803fs-9.3.6.tgz"))
-			Expect(releaseName).To(Equal("windows1803fs"))
+			Expect(releasePath).To(Equal("/path/to/working/dir/extracted-tile/releases/windows2019fs-9.3.6.tgz"))
+			Expect(releaseName).To(Equal("windows2019fs"))
 			Expect(releaseVersion).To(Equal("9.3.6"))
 			Expect(tileDir).To(Equal(filepath.Join("/path/to/working/dir", "extracted-tile")))
 		})
@@ -146,82 +150,32 @@ var _ = Describe("application", func() {
 			Expect(zipFile).To(Equal("/path/to/output/tile"))
 		})
 
-		Context("when on a 1709 stemcell version", func() {
-			var (
-				fakeImageDirectoryContents *fakes.FileInfo
-			)
+		Context("when the image tag of release dir is malformed", func() {
 			BeforeEach(func() {
-				readFileCallCount := 0
-				winfsinjector.SetReadFile(func(string) ([]byte, error) {
-					readFileCallCount++
-					switch readFileCallCount {
-					case 1:
+				winfsinjector.SetReadFile(func(path string) ([]byte, error) {
+					switch filepath.Base(path) {
+					case "VERSION":
 						// reading VERSION file
-						return []byte("9.3.6"), nil
-					case 2:
+						return []byte(""), nil
+					case "blobs.yml":
+						// reading config/blobs.yml
+						return []byte(`---
+windows2019fs/windows2016fs-MISSING-IMAGE-TAG.tgz:
+  size: 3333333333
+  sha: abcdefg1234
+`), nil
+					case "final.yml":
 						// reading config/final.yml
-						return []byte(`name: windows2016fs`), nil
+						return []byte(``), nil
 					default:
-						return nil, errors.New("called readFile more times than expected")
-
-					}
-				})
-
-				fakeImageDirectoryContents = new(fakes.FileInfo)
-				readDirCallCount := 0
-				winfsinjector.SetReadDir(func(string) ([]os.FileInfo, error) {
-					readDirCallCount++
-
-					switch readDirCallCount {
-					case 1:
-						// reading the embeddedReleaseDirectory
-						fakeEmbeddedDirectory := new(fakes.FileInfo)
-						fakeEmbeddedDirectory.IsDirReturns(true)
-						fakeEmbeddedDirectory.NameReturns("windowsfs-release")
-
-						return []os.FileInfo{
-							fakeEmbeddedDirectory,
-						}, nil
-					case 2:
-						return []os.FileInfo{
-							fakeImageDirectoryContents,
-						}, nil
-					default:
-						return nil, errors.New("called readDir more times than expected")
+						return nil, errors.New("readFile called for unexpected input: " + path)
 					}
 				})
 			})
 
-			Context("when the windows2016fs has only IMAGE_TAG", func() {
-				BeforeEach(func() {
-					fakeImageDirectoryContents.NameReturns("IMAGE_TAG")
-					fakeImageDirectoryContents.IsDirReturns(false)
-				})
-
-				It("uses IMAGE_TAG", func() {
-					err := app.Run(inputTile, outputTile, registry, workingDir)
-					Expect(err).NotTo(HaveOccurred())
-
-					Expect(fakeReleaseCreator.CreateReleaseCallCount()).To(Equal(1))
-					_, _, _, _, imageTagPath, _, _ := fakeReleaseCreator.CreateReleaseArgsForCall(0)
-					Expect(imageTagPath).To(Equal("/path/to/working/dir/extracted-tile/embed/windowsfs-release/src/code.cloudfoundry.org/windows2016fs/IMAGE_TAG"))
-				})
-			})
-
-			Context("when the windows2016fs has 1709/IMAGE_TAG", func() {
-				BeforeEach(func() {
-					fakeImageDirectoryContents.NameReturns("1709")
-					fakeImageDirectoryContents.IsDirReturns(true)
-				})
-
-				It("uses 1709/IMAGE_TAG", func() {
-					err := app.Run(inputTile, outputTile, registry, workingDir)
-					Expect(err).NotTo(HaveOccurred())
-
-					Expect(fakeReleaseCreator.CreateReleaseCallCount()).To(Equal(1))
-					_, _, _, _, imageTagPath, _, _ := fakeReleaseCreator.CreateReleaseArgsForCall(0)
-					Expect(imageTagPath).To(Equal("/path/to/working/dir/extracted-tile/embed/windowsfs-release/src/code.cloudfoundry.org/windows2016fs/1709/IMAGE_TAG"))
-				})
+			It("returns the error", func() {
+				err := app.Run(inputTile, outputTile, registry, workingDir)
+				Expect(err).To(MatchError(ContainSubstring("unable to parse tag from embedded rootfs:")))
 			})
 		})
 

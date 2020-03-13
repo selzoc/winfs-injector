@@ -14,13 +14,7 @@ import (
 
 type ReleaseCreator struct{}
 
-func (rc ReleaseCreator) CreateRelease(releaseName, imageName, releaseDir, tarballPath, imageTagPath, registry, version string) error {
-	tagData, err := ioutil.ReadFile(imageTagPath)
-	if err != nil {
-		return err
-	}
-	imageTag := string(tagData)
-
+func (rc ReleaseCreator) CreateRelease(releaseName, imageName, releaseDir, tarballPath, imageTag, registry, version string) error {
 	hLogger := log.New(os.Stdout, "", 0)
 	releaseBlob := filepath.Join(releaseDir, "blobs", releaseName)
 

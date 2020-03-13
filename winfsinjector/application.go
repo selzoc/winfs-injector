@@ -44,7 +44,7 @@ type zipper interface {
 //go:generate counterfeiter -o ./fakes/release_creator.go --fake-name ReleaseCreator . releaseCreator
 
 type releaseCreator interface {
-	CreateRelease(releaseName, imageName, releaseDir, tarballPath, imageTagPath, registry, version string) error
+	CreateRelease(releaseName, imageName, releaseDir, tarballPath, imageTag, registry, version string) error
 }
 
 func NewApplication(releaseCreator releaseCreator, injector injector, zipper zipper) Application {
@@ -116,14 +116,14 @@ func (a Application) Run(inputTile, outputTile, registry, workingDir string) err
 	}
 
 	imageName := "cloudfoundry/windows2016fs"
-	imageTagPath, err := a.determineImageTagPath(releaseName, embeddedReleaseDir)
+	imageTag, err := a.determineImageTag(embeddedReleaseDir)
 	if err != nil {
 		return err
 	}
 
 	tarballPath := filepath.Join(extractedTileDir, "releases", fmt.Sprintf("%s-%s.tgz", releaseName, releaseVersion))
 
-	err = a.releaseCreator.CreateRelease(releaseName, imageName, embeddedReleaseDir, tarballPath, imageTagPath, registry, releaseVersion)
+	err = a.releaseCreator.CreateRelease(releaseName, imageName, embeddedReleaseDir, tarballPath, imageTag, registry, releaseVersion)
 	if err != nil {
 		return err
 	}
@@ -169,42 +169,30 @@ func (a Application) extractReleaseName(releaseDir string) (string, error) {
 	return f.Name, nil
 }
 
-func (a Application) determineImageTagPath(releaseName, releaseDir string) (string, error) {
-	re, err := regexp.Compile(`windows(\d{4})fs`)
+func (a Application) determineImageTag(releaseDir string) (string, error) {
+	var (
+		blobs       = map[string]interface{}{}
+		blobPath    = filepath.Join(releaseDir, "config", "blobs.yml")
+		blobPattern = regexp.MustCompile(`windows.*fs\/windows.*fs-(\d+\.\d+\.\d+)\.tgz`)
+	)
+
+	data, err := readFile(blobPath)
 	if err != nil {
 		return "", err
 	}
 
-	matches := re.FindStringSubmatch(releaseName)
-	if len(matches) != 2 {
-		return "", errors.New("could not match release name against `windows(\\d4)fs` to determine stemcell line")
-	}
-	stemcellLine := matches[1]
-
-	var imageTagPath string
-	imageTagDirectory := filepath.Join(releaseDir, "src", "code.cloudfoundry.org", "windows2016fs")
-	switch stemcellLine {
-	case "2016":
-		// either windowsfs/IMAGE_TAG or windowsfs/1709/IMAGE_TAG
-
-		files, err := readDir(imageTagDirectory)
-		if err != nil {
-			return "", err
-		}
-
-		for _, f := range files {
-			if strings.Contains(f.Name(), "IMAGE_TAG") && f.IsDir() == false {
-				return filepath.Join(imageTagDirectory, "IMAGE_TAG"), nil
-			}
-			if strings.Contains(f.Name(), "1709") && f.IsDir() == true {
-				return filepath.Join(imageTagDirectory, "1709", "IMAGE_TAG"), nil
-			}
-		}
-
-		return "", errors.New("unable to find IMAGE_TAG or 1709/IMAGE_TAG in windows2016fs; please contact tile authors to fix")
-	default:
-		return filepath.Join(imageTagDirectory, stemcellLine, "IMAGE_TAG"), nil
+	err = yaml.Unmarshal(data, &blobs)
+	if err != nil {
+		return "", err
 	}
 
-	return imageTagPath, nil
+	for key, _ := range blobs {
+		matches := blobPattern.FindStringSubmatch(key)
+
+		if len(matches) == 2 {
+			return matches[1], nil
+		}
+	}
+
+	return "", errors.New("unable to parse tag from embedded rootfs: Please confirm that you are using the appropriate winfs-injector version for this tile")
 }
