@@ -79,8 +79,11 @@ func (a Application) Run(inputTile, outputTile, registry, workingDir string) err
 
 	if len(files) > 1 {
 		return errors.New("there is more than one file system embedded in the tile; please contact the tile authors to fix")
-	} else if len(files) == 0 {
-		return errors.New("there is no file system embedded in the tile; please contact the tile authors to fix")
+	}
+
+	if len(files) == 0 {
+		fmt.Println("The file system has already been injected in the tile; skipping injection")
+		return nil
 	}
 
 	e := files[0]

@@ -2,10 +2,12 @@ package winfsinjector_test
 
 import (
 	"errors"
+	"fmt"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/pivotal-cf/winfs-injector/winfsinjector"
 	"github.com/pivotal-cf/winfs-injector/winfsinjector/fakes"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 )
@@ -24,6 +26,8 @@ var _ = Describe("application", func() {
 			workingDir string
 
 			app winfsinjector.Application
+
+			err error
 		)
 
 		BeforeEach(func() {
@@ -34,7 +38,13 @@ var _ = Describe("application", func() {
 			inputTile = "/path/to/input/tile"
 			outputTile = "/path/to/output/tile"
 			registry = "/path/to/docker/registry"
-			workingDir = "/path/to/working/dir"
+
+			workingDir, err = ioutil.TempDir("","")
+			Expect(err).ToNot(HaveOccurred())
+
+			embedFilePath := fmt.Sprintf("%s/extracted-tile/embed", workingDir)
+			err := os.MkdirAll(embedFilePath, os.ModePerm)
+			Expect(err).ToNot(HaveOccurred())
 
 			winfsinjector.SetReadFile(func(path string) ([]byte, error) {
 				switch filepath.Base(path) {
@@ -83,7 +93,7 @@ windows2019fs/windows2016fs-2019.0.43.tgz:
 
 			inputTile, extractedTileDir := fakeZipper.UnzipArgsForCall(0)
 			Expect(inputTile).To(Equal(filepath.Join("/", "path", "to", "input", "tile")))
-			Expect(extractedTileDir).To(Equal(filepath.Join("/", "path", "to", "working", "dir", "extracted-tile")))
+			Expect(extractedTileDir).To(Equal(fmt.Sprintf("%s%s", workingDir,filepath.Join("/", "extracted-tile"))))
 		})
 
 		It("creates the release", func() {
@@ -95,8 +105,8 @@ windows2019fs/windows2016fs-2019.0.43.tgz:
 			releaseName, imageName, releaseDir, tarballPath, imageTag, registry, version := fakeReleaseCreator.CreateReleaseArgsForCall(0)
 			Expect(releaseName).To(Equal("windows2019fs"))
 			Expect(imageName).To(Equal("cloudfoundry/windows2016fs"))
-			Expect(releaseDir).To(Equal("/path/to/working/dir/extracted-tile/embed/windowsfs-release"))
-			Expect(tarballPath).To(Equal("/path/to/working/dir/extracted-tile/releases/windows2019fs-9.3.6.tgz"))
+			Expect(releaseDir).To(Equal(fmt.Sprintf("%s/extracted-tile/embed/windowsfs-release", workingDir)))
+			Expect(tarballPath).To(Equal(fmt.Sprintf("%s/extracted-tile/releases/windows2019fs-9.3.6.tgz", workingDir)))
 			Expect(imageTag).To(Equal("2019.0.43"))
 			Expect(registry).To(Equal("/path/to/docker/registry"))
 			Expect(version).To(Equal("9.3.6"))
@@ -111,10 +121,10 @@ windows2019fs/windows2016fs-2019.0.43.tgz:
 
 			Expect(fakeInjector.AddReleaseToMetadataCallCount()).To(Equal(1))
 			releasePath, releaseName, releaseVersion, tileDir := fakeInjector.AddReleaseToMetadataArgsForCall(0)
-			Expect(releasePath).To(Equal("/path/to/working/dir/extracted-tile/releases/windows2019fs-9.3.6.tgz"))
+			Expect(releasePath).To(Equal(fmt.Sprintf("%s/extracted-tile/releases/windows2019fs-9.3.6.tgz", workingDir)))
 			Expect(releaseName).To(Equal("windows2019fs"))
 			Expect(releaseVersion).To(Equal("9.3.6"))
-			Expect(tileDir).To(Equal(filepath.Join("/path/to/working/dir", "extracted-tile")))
+			Expect(tileDir).To(Equal(filepath.Join(workingDir, "extracted-tile")))
 		})
 
 		It("removes the windows2016fs-release from the embed directory", func() {
@@ -133,7 +143,7 @@ windows2019fs/windows2016fs-2019.0.43.tgz:
 			Expect(err).NotTo(HaveOccurred())
 
 			Expect(removeAllCallCount).To(Equal(1))
-			Expect(removeAllPath).To(Equal(filepath.Join("/", "path", "to", "working", "dir", "extracted-tile", "embed", "windowsfs-release")))
+			Expect(removeAllPath).To(Equal(fmt.Sprintf("%s%s", workingDir,filepath.Join("/", "extracted-tile", "embed", "windowsfs-release"))))
 		})
 
 		It("zips up the injected tile dir", func() {
@@ -146,7 +156,7 @@ windows2019fs/windows2016fs-2019.0.43.tgz:
 
 			Expect(fakeZipper.ZipCallCount()).To(Equal(1))
 			zipDir, zipFile := fakeZipper.ZipArgsForCall(0)
-			Expect(zipDir).To(Equal(filepath.Join("/path/to/working/dir", "extracted-tile")))
+			Expect(zipDir).To(Equal(filepath.Join(workingDir, "extracted-tile")))
 			Expect(zipFile).To(Equal("/path/to/output/tile"))
 		})
 
@@ -201,21 +211,7 @@ windows2019fs/windows2016fs-MISSING-IMAGE-TAG.tgz:
 				Expect(err).To(MatchError("some-error"))
 			})
 		})
-		
-		Context("when the embed directory cannot be read", func() {
-			BeforeEach(func() {
-				winfsinjector.SetReadDir(func(string) ([]os.FileInfo, error) {
-					return nil, errors.New("invalid directory")
-				})
-			})
-			
-			It("returns the error", func() {
-				err := app.Run(inputTile, outputTile, registry, workingDir)
-				Expect(err).To(HaveOccurred())
-				Expect(err).To(MatchError("invalid directory"))
-			})
-		})
-		
+
 		Context("when the embed directory is not a directory", func() {
 			BeforeEach(func() {
 				fakeEmbeddedDirectory = new(fakes.FileInfo)
@@ -229,7 +225,7 @@ windows2019fs/windows2016fs-MISSING-IMAGE-TAG.tgz:
 				Expect(err).To(MatchError("the embedded file system is not a directory; please contact the tile authors to fix"))
 			})
 		})
-		
+
 		Context("when more than one file system is embedded in the tile", func() {
 			BeforeEach(func() {
 				winfsinjector.SetReadDir(func(string) ([]os.FileInfo, error) {
@@ -239,16 +235,17 @@ windows2019fs/windows2016fs-MISSING-IMAGE-TAG.tgz:
 					}, nil
 				})
 			})
-			
+
 			It("returns the error", func() {
 				err := app.Run(inputTile, outputTile, registry, workingDir)
 				Expect(err).To(HaveOccurred())
 				Expect(err).To(MatchError("there is more than one file system embedded in the tile; please contact the tile authors to fix"))
 			})
 		})
-		
+
 		Context("when there are no file systems embedded in the tile", func() {
 			BeforeEach(func() {
+				workingDir = "not/a/path/to/tile"
 				winfsinjector.SetReadDir(func(string) ([]os.FileInfo, error) {
 					return []os.FileInfo{}, nil
 				})
@@ -258,6 +255,32 @@ windows2019fs/windows2016fs-MISSING-IMAGE-TAG.tgz:
 				err := app.Run(inputTile, outputTile, registry, workingDir)
 				Expect(err).To(HaveOccurred())
 				Expect(err).To(MatchError("there is no file system embedded in the tile; please contact the tile authors to fix"))
+			})
+		})
+
+		Context("when the file system has already been injected", func() {
+			BeforeEach(func() {
+				winfsinjector.SetReadDir(func(string) ([]os.FileInfo, error) {
+					return []os.FileInfo{}, nil
+				})
+			})
+
+			It("does not return an error and exits", func() {
+				var err error
+				r, w, _ := os.Pipe()
+				tmp := os.Stdout
+				defer func() {
+					os.Stdout = tmp
+				}()
+				os.Stdout = w
+				go func() {
+					err = app.Run(inputTile, outputTile, registry, workingDir)
+					w.Close()
+				}()
+
+				Expect(err).ToNot(HaveOccurred())
+				stdout, _ := ioutil.ReadAll(r)
+				Expect(string(stdout)).To(ContainSubstring("The file system has already been injected in the tile; skipping injection"))
 			})
 		})
 
