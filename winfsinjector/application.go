@@ -73,8 +73,8 @@ func (a Application) Run(inputTile, outputTile, registry, workingDir string) err
 	// find what the embedded directory is
 	embedDirectory := filepath.Join(extractedTileDir, "embed")
 	files, err := readDir(embedDirectory)
-	if err != nil {
-		return err
+	if _, err := os.Stat(embedDirectory); os.IsNotExist(err) {
+		return errors.New("there is no file system embedded in the tile; please contact the tile authors to fix")
 	}
 
 	if len(files) > 1 {
