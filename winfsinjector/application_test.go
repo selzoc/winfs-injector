@@ -2,19 +2,19 @@ package winfsinjector_test
 
 import (
 	"errors"
-	"os"
-	"path/filepath"
-
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/pivotal-cf/winfs-injector/winfsinjector"
 	"github.com/pivotal-cf/winfs-injector/winfsinjector/fakes"
+	"os"
+	"path/filepath"
 )
 
 var _ = Describe("application", func() {
 	Describe("Run", func() {
 		var (
 			fakeReleaseCreator *fakes.ReleaseCreator
+			fakeEmbeddedDirectory *fakes.FileInfo
 			fakeInjector       *fakes.Injector
 			fakeZipper         *fakes.Zipper
 
@@ -56,7 +56,7 @@ windows2019fs/windows2016fs-2019.0.43.tgz:
 				}
 			})
 
-			fakeEmbeddedDirectory := new(fakes.FileInfo)
+			fakeEmbeddedDirectory = new(fakes.FileInfo)
 			fakeEmbeddedDirectory.IsDirReturns(true)
 			fakeEmbeddedDirectory.NameReturns("windowsfs-release")
 
@@ -185,6 +185,7 @@ windows2019fs/windows2016fs-MISSING-IMAGE-TAG.tgz:
 			})
 			It("returns the error", func() {
 				err := app.Run(inputTile, outputTile, registry, workingDir)
+				Expect(err).To(HaveOccurred())
 				Expect(err).To(MatchError("some-error"))
 			})
 		})
@@ -196,7 +197,67 @@ windows2019fs/windows2016fs-MISSING-IMAGE-TAG.tgz:
 
 			It("returns the error", func() {
 				err := app.Run(inputTile, outputTile, registry, workingDir)
+				Expect(err).To(HaveOccurred())
 				Expect(err).To(MatchError("some-error"))
+			})
+		})
+		
+		Context("when the embed directory cannot be read", func() {
+			BeforeEach(func() {
+				winfsinjector.SetReadDir(func(string) ([]os.FileInfo, error) {
+					return nil, errors.New("invalid directory")
+				})
+			})
+			
+			It("returns the error", func() {
+				err := app.Run(inputTile, outputTile, registry, workingDir)
+				Expect(err).To(HaveOccurred())
+				Expect(err).To(MatchError("invalid directory"))
+			})
+		})
+		
+		Context("when the embed directory is not a directory", func() {
+			BeforeEach(func() {
+				fakeEmbeddedDirectory = new(fakes.FileInfo)
+				fakeEmbeddedDirectory.IsDirReturns(false)
+				fakeEmbeddedDirectory.NameReturns("not a directory")
+			})
+
+			It("returns the error", func() {
+				err := app.Run(inputTile, outputTile, registry, workingDir)
+				Expect(err).To(HaveOccurred())
+				Expect(err).To(MatchError("the embedded file system is not a directory; please contact the tile authors to fix"))
+			})
+		})
+		
+		Context("when more than one file system is embedded in the tile", func() {
+			BeforeEach(func() {
+				winfsinjector.SetReadDir(func(string) ([]os.FileInfo, error) {
+					return []os.FileInfo{
+						fakeEmbeddedDirectory,
+						fakeEmbeddedDirectory,
+					}, nil
+				})
+			})
+			
+			It("returns the error", func() {
+				err := app.Run(inputTile, outputTile, registry, workingDir)
+				Expect(err).To(HaveOccurred())
+				Expect(err).To(MatchError("there is more than one file system embedded in the tile; please contact the tile authors to fix"))
+			})
+		})
+		
+		Context("when there are no file systems embedded in the tile", func() {
+			BeforeEach(func() {
+				winfsinjector.SetReadDir(func(string) ([]os.FileInfo, error) {
+					return []os.FileInfo{}, nil
+				})
+			})
+
+			It("returns the error", func() {
+				err := app.Run(inputTile, outputTile, registry, workingDir)
+				Expect(err).To(HaveOccurred())
+				Expect(err).To(MatchError("there is no file system embedded in the tile; please contact the tile authors to fix"))
 			})
 		})
 
@@ -207,6 +268,7 @@ windows2019fs/windows2016fs-MISSING-IMAGE-TAG.tgz:
 
 			It("returns the error", func() {
 				err := app.Run(inputTile, outputTile, registry, workingDir)
+				Expect(err).To(HaveOccurred())
 				Expect(err).To(MatchError("some-error"))
 			})
 		})
@@ -231,6 +293,7 @@ windows2019fs/windows2016fs-MISSING-IMAGE-TAG.tgz:
 
 			It("returns the error", func() {
 				err := app.Run(inputTile, outputTile, registry, workingDir)
+				Expect(err).To(HaveOccurred())
 				Expect(err).To(MatchError("some-error"))
 			})
 		})
