@@ -273,10 +273,8 @@ windows2019fs/windows2016fs-MISSING-IMAGE-TAG.tgz:
 					os.Stdout = tmp
 				}()
 				os.Stdout = w
-				go func() {
-					err = app.Run(inputTile, outputTile, registry, workingDir)
-					w.Close()
-				}()
+				err = app.Run(inputTile, outputTile, registry, workingDir)
+				w.Close()
 
 				Expect(err).ToNot(HaveOccurred())
 				stdout, _ := ioutil.ReadAll(r)
