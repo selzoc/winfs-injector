@@ -4,6 +4,8 @@
 This is an operator CLI tool to inject the windows file system into the Pivotal
 Windows Runtime Tile.
 
+**Contact Us**: This product is owned by the Pivotal TAS Release Engineering team. If you need support of this, you can reach us at `#tas-for-vms` on Pivotal/VMware Slack.
+
 ### Example Usage
 ```bash
 $ winfs-injector \
