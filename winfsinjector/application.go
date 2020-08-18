@@ -77,7 +77,7 @@ func (a Application) Run(inputTile, outputTile, registry, workingDir string) err
 		return errors.New("there is no file system embedded in the tile; please contact the tile authors to fix")
 	}
 
-	if len(files) > 1 {
+	if len(files) > 2 {
 		return errors.New("there is more than one file system embedded in the tile; please contact the tile authors to fix")
 	}
 
@@ -87,6 +87,15 @@ func (a Application) Run(inputTile, outputTile, registry, workingDir string) err
 	}
 
 	e := files[0]
+	if len(files) == 2 {
+		if files[0].Name() != "license" && files[1].Name() != "license" {
+			return errors.New("there were two file systems and neither were license; please contact the tile authors to fix")
+		}
+		if files[0].Name() == "license" {
+			e = files[1]
+		}
+	}
+
 	if !e.IsDir() {
 		return errors.New("the embedded file system is not a directory; please contact the tile authors to fix")
 	}
