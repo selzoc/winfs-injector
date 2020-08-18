@@ -3,20 +3,20 @@ package winfsinjector_test
 import (
 	"errors"
 	"fmt"
+	"io/ioutil"
+	"os"
+	"path/filepath"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/pivotal-cf/winfs-injector/winfsinjector"
 	"github.com/pivotal-cf/winfs-injector/winfsinjector/fakes"
-	"io/ioutil"
-	"os"
-	"path/filepath"
 )
 
 var _ = Describe("application", func() {
 	Describe("Run", func() {
 		var (
 			fakeReleaseCreator *fakes.ReleaseCreator
-			fakeEmbeddedDirectory *fakes.FileInfo
 			fakeInjector       *fakes.Injector
 			fakeZipper         *fakes.Zipper
 
@@ -39,7 +39,7 @@ var _ = Describe("application", func() {
 			outputTile = "/path/to/output/tile"
 			registry = "/path/to/docker/registry"
 
-			workingDir, err = ioutil.TempDir("","")
+			workingDir, err = ioutil.TempDir("", "")
 			Expect(err).ToNot(HaveOccurred())
 
 			embedFilePath := fmt.Sprintf("%s/extracted-tile/embed", workingDir)
@@ -66,15 +66,8 @@ windows2019fs/windows2016fs-2019.0.43.tgz:
 				}
 			})
 
-			fakeEmbeddedDirectory = new(fakes.FileInfo)
-			fakeEmbeddedDirectory.IsDirReturns(true)
-			fakeEmbeddedDirectory.NameReturns("windowsfs-release")
-
-			winfsinjector.SetReadDir(func(string) ([]os.FileInfo, error) {
-				return []os.FileInfo{
-					fakeEmbeddedDirectory,
-				}, nil
-			})
+			err = os.MkdirAll(embedFilePath+"/windowsfs-release", os.ModePerm)
+			Expect(err).ToNot(HaveOccurred())
 
 			app = winfsinjector.NewApplication(fakeReleaseCreator, fakeInjector, fakeZipper)
 		})
@@ -82,7 +75,6 @@ windows2019fs/windows2016fs-2019.0.43.tgz:
 		AfterEach(func() {
 			winfsinjector.ResetReadFile()
 			winfsinjector.ResetRemoveAll()
-			winfsinjector.ResetReadDir()
 		})
 
 		It("unzips the tile", func() {
@@ -93,7 +85,7 @@ windows2019fs/windows2016fs-2019.0.43.tgz:
 
 			inputTile, extractedTileDir := fakeZipper.UnzipArgsForCall(0)
 			Expect(inputTile).To(Equal(filepath.Join("/", "path", "to", "input", "tile")))
-			Expect(extractedTileDir).To(Equal(fmt.Sprintf("%s%s", workingDir,filepath.Join("/", "extracted-tile"))))
+			Expect(extractedTileDir).To(Equal(fmt.Sprintf("%s%s", workingDir, filepath.Join("/", "extracted-tile"))))
 		})
 
 		It("creates the release", func() {
@@ -143,7 +135,7 @@ windows2019fs/windows2016fs-2019.0.43.tgz:
 			Expect(err).NotTo(HaveOccurred())
 
 			Expect(removeAllCallCount).To(Equal(1))
-			Expect(removeAllPath).To(Equal(fmt.Sprintf("%s%s", workingDir,filepath.Join("/", "extracted-tile", "embed", "windowsfs-release"))))
+			Expect(removeAllPath).To(Equal(fmt.Sprintf("%s%s", workingDir, filepath.Join("/", "extracted-tile", "embed", "windowsfs-release"))))
 		})
 
 		It("zips up the injected tile dir", func() {
@@ -212,73 +204,42 @@ windows2019fs/windows2016fs-MISSING-IMAGE-TAG.tgz:
 			})
 		})
 
-		Context("when the embed directory is not a directory", func() {
+		Context("when there is multiple directories embedded in the tile", func() {
 			BeforeEach(func() {
-				fakeEmbeddedDirectory = new(fakes.FileInfo)
-				fakeEmbeddedDirectory.IsDirReturns(false)
-				fakeEmbeddedDirectory.NameReturns("not a directory")
-			})
-
-			It("returns the error", func() {
-				err := app.Run(inputTile, outputTile, registry, workingDir)
-				Expect(err).To(HaveOccurred())
-				Expect(err).To(MatchError("the embedded file system is not a directory; please contact the tile authors to fix"))
-			})
-		})
-
-		Context("when more than one file system is embedded in the tile", func() {
-			BeforeEach(func() {
-				winfsinjector.SetReadDir(func(string) ([]os.FileInfo, error) {
-					return []os.FileInfo{
-						fakeEmbeddedDirectory,
-						fakeEmbeddedDirectory,
-					}, nil
-				})
-			})
-
-			It("returns the error", func() {
-				err := app.Run(inputTile, outputTile, registry, workingDir)
-				Expect(err).To(HaveOccurred())
-				Expect(err).To(MatchError("there is more than one file system embedded in the tile; please contact the tile authors to fix"))
-			})
-		})
-
-		Context("when there are no file systems embedded in the tile", func() {
-			BeforeEach(func() {
-				workingDir = "not/a/path/to/tile"
-				winfsinjector.SetReadDir(func(string) ([]os.FileInfo, error) {
-					return []os.FileInfo{}, nil
-				})
-			})
-
-			It("returns the error", func() {
-				err := app.Run(inputTile, outputTile, registry, workingDir)
-				Expect(err).To(HaveOccurred())
-				Expect(err).To(MatchError("there is no file system embedded in the tile; please contact the tile authors to fix"))
-			})
-		})
-
-		Context("when the file system has already been injected", func() {
-			BeforeEach(func() {
-				winfsinjector.SetReadDir(func(string) ([]os.FileInfo, error) {
-					return []os.FileInfo{}, nil
-				})
-			})
-
-			It("does not return an error and exits", func() {
-				var err error
-				r, w, _ := os.Pipe()
-				tmp := os.Stdout
-				defer func() {
-					os.Stdout = tmp
-				}()
-				os.Stdout = w
-				err = app.Run(inputTile, outputTile, registry, workingDir)
-				w.Close()
-
+				embedFilePath := fmt.Sprintf("%s/extracted-tile/embed", workingDir)
+				err = os.MkdirAll(embedFilePath+"/this-is-another-folder", os.ModePerm)
 				Expect(err).ToNot(HaveOccurred())
-				stdout, _ := ioutil.ReadAll(r)
-				Expect(string(stdout)).To(ContainSubstring("The file system has already been injected in the tile; skipping injection"))
+			})
+
+			It("creates a release with the windowsfs-release", func() {
+				err := app.Run(inputTile, outputTile, registry, workingDir)
+				Expect(err).ToNot(HaveOccurred())
+
+				Expect(fakeReleaseCreator.CreateReleaseCallCount()).To(Equal(1))
+
+				releaseName, imageName, releaseDir, tarballPath, imageTag, registry, version := fakeReleaseCreator.CreateReleaseArgsForCall(0)
+				Expect(releaseName).To(Equal("windows2019fs"))
+				Expect(imageName).To(Equal("cloudfoundry/windows2016fs"))
+				Expect(releaseDir).To(Equal(fmt.Sprintf("%s/extracted-tile/embed/windowsfs-release", workingDir)))
+				Expect(tarballPath).To(Equal(fmt.Sprintf("%s/extracted-tile/releases/windows2019fs-9.3.6.tgz", workingDir)))
+				Expect(imageTag).To(Equal("2019.0.43"))
+				Expect(registry).To(Equal("/path/to/docker/registry"))
+				Expect(version).To(Equal("9.3.6"))
+			})
+		})
+
+		Context("when windowsfs-release is not embedded in the tile", func() {
+			BeforeEach(func() {
+				embedFilePath := fmt.Sprintf("%s/extracted-tile/embed", workingDir)
+				os.RemoveAll(embedFilePath + "/windowsfs-release")
+				err = os.MkdirAll(embedFilePath+"/this-is-another-folder", os.ModePerm)
+				Expect(err).ToNot(HaveOccurred())
+			})
+
+			It("returns the error", func() {
+				err := app.Run(inputTile, outputTile, registry, workingDir)
+				Expect(err).To(HaveOccurred())
+				Expect(err).To(MatchError("the 'windowsfs-release' file system is not embedded in the tile; please contact the tile authors to fix"))
 			})
 		})
 

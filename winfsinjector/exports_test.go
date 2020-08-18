@@ -20,11 +20,3 @@ func SetRemoveAll(f func(string) error) {
 func ResetRemoveAll() {
 	removeAll = os.RemoveAll
 }
-
-func SetReadDir(f func(string) ([]os.FileInfo, error)) {
-	readDir = f
-}
-
-func ResetReadDir() {
-	readDir = ioutil.ReadDir
-}

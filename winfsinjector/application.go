@@ -17,7 +17,6 @@ import (
 var (
 	readFile  = ioutil.ReadFile
 	removeAll = os.RemoveAll
-	readDir   = ioutil.ReadDir
 )
 
 type Application struct {
@@ -70,28 +69,10 @@ func (a Application) Run(inputTile, outputTile, registry, workingDir string) err
 		return err
 	}
 
-	// find what the embedded directory is
-	embedDirectory := filepath.Join(extractedTileDir, "embed")
-	files, err := readDir(embedDirectory)
-	if _, err := os.Stat(embedDirectory); os.IsNotExist(err) {
-		return errors.New("there is no file system embedded in the tile; please contact the tile authors to fix")
+	embeddedReleaseDir := filepath.Join(extractedTileDir, "embed/windowsfs-release")
+	if _, err := os.Stat(embeddedReleaseDir); os.IsNotExist(err) {
+		return errors.New("the 'windowsfs-release' file system is not embedded in the tile; please contact the tile authors to fix")
 	}
-
-	if len(files) > 1 {
-		return errors.New("there is more than one file system embedded in the tile; please contact the tile authors to fix")
-	}
-
-	if len(files) == 0 {
-		fmt.Println("The file system has already been injected in the tile; skipping injection")
-		return nil
-	}
-
-	e := files[0]
-	if !e.IsDir() {
-		return errors.New("the embedded file system is not a directory; please contact the tile authors to fix")
-	}
-
-	embeddedReleaseDir := filepath.Join(embedDirectory, e.Name())
 	releaseVersion, err := a.extractReleaseVersion(embeddedReleaseDir)
 	if err != nil {
 		return err
