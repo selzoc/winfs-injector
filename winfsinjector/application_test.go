@@ -228,18 +228,26 @@ windows2019fs/windows2016fs-MISSING-IMAGE-TAG.tgz:
 			})
 		})
 
-		Context("when windowsfs-release is not embedded in the tile", func() {
+		Context("when windowsfs-release is not embedded in the tile from being previously hydrated", func() {
 			BeforeEach(func() {
 				embedFilePath := fmt.Sprintf("%s/extracted-tile/embed", workingDir)
 				os.RemoveAll(embedFilePath + "/windowsfs-release")
-				err = os.MkdirAll(embedFilePath+"/this-is-another-folder", os.ModePerm)
-				Expect(err).ToNot(HaveOccurred())
 			})
 
-			It("returns the error", func() {
-				err := app.Run(inputTile, outputTile, registry, workingDir)
-				Expect(err).To(HaveOccurred())
-				Expect(err).To(MatchError("the 'windowsfs-release' file system is not embedded in the tile; please contact the tile authors to fix"))
+			It("does not return an error and exits", func() {
+				var err error
+				r, w, _ := os.Pipe()
+				tmp := os.Stdout
+				defer func() {
+					os.Stdout = tmp
+				}()
+				os.Stdout = w
+				err = app.Run(inputTile, outputTile, registry, workingDir)
+				w.Close()
+
+				Expect(err).ToNot(HaveOccurred())
+				stdout, _ := ioutil.ReadAll(r)
+				Expect(string(stdout)).To(ContainSubstring("The file system has already been injected in the tile; skipping injection"))
 			})
 		})
 
