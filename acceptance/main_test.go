@@ -11,6 +11,9 @@ import (
 
 var _ = Describe("acceptance", func() {
 	Describe("main", func() {
+		const (
+			timeoutSeconds = 30
+		)
 		var (
 			winfsInjector string
 			cmd           *exec.Cmd
@@ -34,7 +37,7 @@ var _ = Describe("acceptance", func() {
 			cmd = exec.Command(winfsInjector, "-o", outputTile)
 			session, err := gexec.Start(cmd, GinkgoWriter, GinkgoWriter)
 			Expect(err).NotTo(HaveOccurred())
-			Eventually(session).Should(gexec.Exit(1))
+			Eventually(session, timeoutSeconds).Should(gexec.Exit(1))
 			Expect(string(session.Err.Contents())).To(ContainSubstring("--input-tile is required"))
 		})
 
@@ -42,7 +45,7 @@ var _ = Describe("acceptance", func() {
 			cmd = exec.Command(winfsInjector, "-i", inputTile)
 			session, err := gexec.Start(cmd, GinkgoWriter, GinkgoWriter)
 			Expect(err).NotTo(HaveOccurred())
-			Eventually(session).Should(gexec.Exit(1))
+			Eventually(session, timeoutSeconds).Should(gexec.Exit(1))
 			Expect(string(session.Err.Contents())).To(ContainSubstring("--output-tile is required"))
 		})
 
@@ -50,7 +53,7 @@ var _ = Describe("acceptance", func() {
 			cmd = exec.Command(winfsInjector, "--help")
 			session, err := gexec.Start(cmd, GinkgoWriter, GinkgoWriter)
 			Expect(err).NotTo(HaveOccurred())
-			Eventually(session).Should(gexec.Exit(0))
+			Eventually(session, timeoutSeconds).Should(gexec.Exit(0))
 			Expect(string(session.Out.Contents())).To(ContainSubstring(`
   --input-tile, -i   path to input tile (example: /path/to/input.pivotal)
   --output-tile, -o  path to output tile (example: /path/to/output.pivotal)
