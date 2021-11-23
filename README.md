@@ -1,10 +1,9 @@
 # winfs-injector
 
 ## Description
-This is an operator CLI tool to inject the windows file system into the Pivotal
-Windows Runtime Tile.
+This is an operator CLI tool to inject the windows file system into the [Tanzu Application Service for Windows product](https://network.tanzu.vmware.com/products/pas-windows).
 
-**Contact Us**: This product is owned by the Pivotal TAS Release Engineering team. If you need support of this, you can reach us at `#tas-for-vms` on Pivotal/VMware Slack.
+**Contact Us**: This product is owned by the Platform Provider Experience team. If you need support of this, you can reach us at `#platform-provider-experience` channel on VMware Slack.
 
 ### Example Usage
 ```bash
