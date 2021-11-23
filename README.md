@@ -14,24 +14,6 @@ $ winfs-injector \
 
 Note: On Windows operating systems you will need to use the bsd release of tar, which can be found [here](https://s3.amazonaws.com/bosh-windows-dependencies/tar-1503683828.exe). You should put this executable in your path as `tar.exe` before running the `winfs-injector` tool.
 
-### Building
+## Building
 
-In order to build the winfs-injector, it needs to be built within the
-[windows2016fs-release](https://github.com/cloudfoundry-incubator/windows2016fs-release).
-This can be done by running the following:
-
-```bash
-git clone http://github.com/cloudfoundry-incubator/windows2016fs-release
-
-cd windows2016fs-release
-
-direnv allow
-git submodule update --init --recursive
-
-go get -u -v github.com/pivotal-cf/winfs-injector
-
-cd src/github.com/pivotal-cf/winfs-injector
-ginkgo -r -p
-
-go build
-```
+Check our build step for detailed instructions on how to build this project.
