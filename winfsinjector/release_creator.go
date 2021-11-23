@@ -8,6 +8,7 @@ import (
 
 	"code.cloudfoundry.org/hydrator/imagefetcher"
 	"github.com/cloudfoundry/bosh-cli/cmd"
+	"github.com/cloudfoundry/bosh-cli/cmd/opts"
 	"github.com/cloudfoundry/bosh-cli/ui"
 	"github.com/cloudfoundry/bosh-utils/logger"
 )
@@ -23,7 +24,7 @@ func (rc ReleaseCreator) CreateRelease(releaseName, imageName, releaseDir, tarba
 		return err
 	}
 
-	releaseVersion := cmd.VersionArg{}
+	releaseVersion := opts.VersionArg{}
 	if err := releaseVersion.UnmarshalFlag(version); err != nil {
 		return err
 	}
@@ -33,8 +34,8 @@ func (rc ReleaseCreator) CreateRelease(releaseName, imageName, releaseDir, tarba
 	defer u.Flush()
 	deps := cmd.NewBasicDeps(u, l)
 
-	createReleaseOpts := &cmd.CreateReleaseOpts{
-		Directory: cmd.DirOrCWDArg{Path: releaseDir},
+	createReleaseOpts := &opts.CreateReleaseOpts{
+		Directory: opts.DirOrCWDArg{Path: releaseDir},
 		Version:   releaseVersion,
 	}
 
@@ -44,7 +45,7 @@ func (rc ReleaseCreator) CreateRelease(releaseName, imageName, releaseDir, tarba
 			return err
 		}
 
-		createReleaseOpts.Tarball = cmd.FileArg{FS: deps.FS, ExpandedPath: expanded}
+		createReleaseOpts.Tarball = opts.FileArg{FS: deps.FS, ExpandedPath: expanded}
 	}
 
 	// bosh create-release adds ~7GB of temp files that should be cleaned up
@@ -55,7 +56,7 @@ func (rc ReleaseCreator) CreateRelease(releaseName, imageName, releaseDir, tarba
 	defer os.RemoveAll(tmpDir)
 	os.Setenv("HOME", tmpDir)
 
-	createReleaseCommand := cmd.NewCmd(cmd.BoshOpts{}, createReleaseOpts, deps)
+	createReleaseCommand := cmd.NewCmd(opts.BoshOpts{}, createReleaseOpts, deps)
 	if err := createReleaseCommand.Execute(); err != nil {
 		return err
 	}

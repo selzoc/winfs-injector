@@ -42,5 +42,5 @@ func (z Zipper) Zip(zipDir, outputFile string) error {
 }
 
 func (z Zipper) Unzip(zipFile, outputDir string) error {
-	return archiver.Zip.Open(zipFile, outputDir)
+	return archiver.DefaultZip.Unarchive(zipFile, outputDir)
 }
