@@ -21,10 +21,10 @@ builds:
 archives:
   - id: github
     format: binary
-    name_template: "winfs-injector-{{ .Os }}-{{ .Version }}"
+    name_template: "winfs-injector-{{ .Os }}"
   - id: homebrew
     format: "tar.gz"
-    name_template: "winfs-injector-{{ .Os }}-{{ .Version }}"
+    name_template: "winfs-injector-{{ .Os }}"
     format_overrides:
       - goos: windows
         format: zip
