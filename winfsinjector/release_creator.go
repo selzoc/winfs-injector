@@ -7,9 +7,9 @@ import (
 	"path/filepath"
 
 	"code.cloudfoundry.org/hydrator/imagefetcher"
-	"github.com/cloudfoundry/bosh-cli/cmd"
-	"github.com/cloudfoundry/bosh-cli/cmd/opts"
-	"github.com/cloudfoundry/bosh-cli/ui"
+	"github.com/cloudfoundry/bosh-cli/v7/cmd"
+	"github.com/cloudfoundry/bosh-cli/v7/cmd/opts"
+	"github.com/cloudfoundry/bosh-cli/v7/ui"
 	"github.com/cloudfoundry/bosh-utils/logger"
 )
 
